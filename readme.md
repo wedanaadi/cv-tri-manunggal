@@ -3,7 +3,7 @@
 Dibuat dengan
 
 - Codeigniter 3
-- Bootstrap 4 
+- Bootstrap 4
 - Jquery
 - Database Mysql
 
