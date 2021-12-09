@@ -226,12 +226,14 @@ class Dashboard_c extends CI_Controller
       $where = "WHERE pp.`validasi` = '0'";
     }
     $sql = "SELECT pp.`id_progress`, op.`nama_konsumen`, op.`no_surat_kontrak`, jn.`nama_jenis_proyek`, 
-            pp.`persentase`, pp.`validasi`, pp.`proyek_id`,pp.`jenis_proyek`
+            pp.`persentase`, pp.`validasi`, opd.`order_proyek_id`,opd.`jenis_proyek`
             FROM `t_progress_proyek` pp
             INNER JOIN `t_order_proyek` op ON op.`id_proyek` = pp.`proyek_id`
             INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
             INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = pp.`jenis_proyek`
-            $where";
+            $where
+            GROUP BY pp.`id_progress`
+            ORDER BY pp.`id_progress` ASC, pp.`tanggal` DESC";
     return $this->db->query($sql)->result();
   }
 }

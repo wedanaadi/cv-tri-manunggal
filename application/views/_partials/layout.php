@@ -103,6 +103,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 </div>
                 <div class="dropdown-footer text-center">
                   <!-- <a href="#">View All <i class="fas fa-chevron-right"></i></a> -->
+                  &nbsp;
                 </div>
               </div>
             </li>
@@ -120,7 +121,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     <span style="padding: 15px">Tidak Ada Notifikasi</span>
                   <?php endif; ?>
                   <?php foreach ($this->session->userdata('notif') as $n) : ?>
-                    <a href="<?= base_url('ProgressProyek_c/progresslist/' . $n->proyek_id . '/' . $n->jenis_proyek) ?>" class="dropdown-item dropdown-item-unread">
+                    <a href="<?= base_url('ProgressProyek_c/progresslist/' . $n->order_proyek_id . '/' . $n->jenis_proyek) ?>" class="dropdown-item dropdown-item-unread">
                       <!-- <div class="dropdown-item-icon bg-success text-white">
                         <i class="fas fa-exclamation-triangle"></i>
                       </div> -->
@@ -133,7 +134,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                   <?php endforeach; ?>
                 </div>
                 <div class="dropdown-footer text-center">
-                  <!-- <a href="#">View All <i class="fas fa-chevron-right"></i></a> -->
+                  &nbsp;
                 </div>
               </div>
             </li>

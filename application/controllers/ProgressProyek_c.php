@@ -136,12 +136,14 @@ class ProgressProyek_c extends CI_Controller
       $data['array'] = $this->db->query($sql)->result();
     }
     $sql = "SELECT pp.`id_progress`, op.`nama_konsumen`, op.`no_surat_kontrak`, jn.`nama_jenis_proyek`, 
-            pp.`persentase`, pp.`validasi`, pp.`proyek_id`,pp.`jenis_proyek`
+            pp.`persentase`, pp.`validasi`, opd.`order_proyek_id`,opd.`jenis_proyek`
             FROM `t_progress_proyek` pp
             INNER JOIN `t_order_proyek` op ON op.`id_proyek` = pp.`proyek_id`
             INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
             INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = pp.`jenis_proyek`
-            WHERE pp.`validasi` IN('1','2') AND op.`status` = '0' AND opd.`kepala_proyek` = '$kepalaproyek'";
+            WHERE pp.`validasi` IN('1','2') AND op.`status` = '0' AND opd.`kepala_proyek` = '$kepalaproyek'
+            GROUP BY pp.`id_progress`
+            ORDER BY pp.`id_progress` ASC, pp.`tanggal` DESC";
     $this->session->set_userdata('notif', $this->db->query($sql)->result());
     $this->load->view('progress/detail_v', $data);
   }
@@ -263,6 +265,8 @@ class ProgressProyek_c extends CI_Controller
     $cekLastPersentase = $this->db->query("SELECT * FROM `t_progress_proyek` WHERE proyek_id = '$proyek' AND `jenis_proyek` = '$jn' AND validasi != '2'
                                             ORDER BY tanggal DESC");
     $data['lastPersentase'] = json_encode($cekLastPersentase->num_rows() > 0 ? $cekLastPersentase->row()->persentase : 0);
+    // print_r($sql);
+    // exit();
     $this->load->view('progress/update_v', $data);
   }
 
@@ -537,12 +541,14 @@ class ProgressProyek_c extends CI_Controller
     $data['progress'] = $this->db->query($sql)->row();
     $data['photo'] = $this->db->query("SELECT * FROM t_progress_gambar WHERE progress_id='$id'")->result();
     $sql = "SELECT pp.`id_progress`, op.`nama_konsumen`, op.`no_surat_kontrak`, jn.`nama_jenis_proyek`, 
-            pp.`persentase`, pp.`validasi`, pp.`proyek_id`,pp.`jenis_proyek`
+            pp.`persentase`, pp.`validasi`, opd.`order_proyek_id`,opd.`jenis_proyek`
             FROM `t_progress_proyek` pp
             INNER JOIN `t_order_proyek` op ON op.`id_proyek` = pp.`proyek_id`
             INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
             INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = pp.`jenis_proyek`
-            WHERE pp.`validasi` = '0'";
+            WHERE pp.`validasi` = '0'
+            GROUP BY pp.`id_progress`
+            ORDER BY pp.`id_progress` ASC, pp.`tanggal` DESC";
     $this->session->set_userdata('notif', $this->db->query($sql)->result());
     $this->load->view('progress/admindetail_v', $data);
   }
