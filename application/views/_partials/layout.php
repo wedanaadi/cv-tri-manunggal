@@ -76,65 +76,68 @@ defined('BASEPATH') or exit('No direct script access allowed');
           </div> -->
         </form>
         <ul class="navbar-nav navbar-right">
-          <!-- <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link notification-toggle nav-link-lg beep"><i class="far fa-bell"></i></a>
-            <div class="dropdown-menu dropdown-list dropdown-menu-right">
-              <div class="dropdown-header">Notifications
-                <div class="float-right">
-                  <a href="#">Mark All As Read</a>
+          <?php if ($this->session->userdata('hakakses') === '1' || $this->session->userdata('hakakses') === '4') : ?>
+            <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link notification-toggle nav-link-lg <?= count($this->session->userdata('notif')) > 0 ? 'beep' : '' ?>"><i class="far fa-bell"></i></a>
+              <div class="dropdown-menu dropdown-list dropdown-menu-right">
+                <div class="dropdown-header">Notifikasi Validasi Progress Proyek
+                  <div class="float-right">
+                    <!-- <a href="#">Mark All As Read</a> -->
+                  </div>
+                </div>
+                <div class="dropdown-list-content dropdown-list-icons">
+                  <?php if (count($this->session->userdata('notif')) === 0) : ?>
+                    <span style="padding: 15px">Tidak Ada Notifikasi</span>
+                  <?php endif; ?>
+                  <?php foreach ($this->session->userdata('notif') as $n) : ?>
+                    <a href="<?= base_url('ProgressProyek_c/detailadmin/' . $n->id_progress) ?>" class="dropdown-item dropdown-item-unread">
+                      <!-- <div class="dropdown-item-icon bg-success text-white">
+                        <i class="fas fa-exclamation-triangle"></i>
+                      </div> -->
+                      <div class="dropdown-item-desc">
+                        <?= $n->nama_konsumen . ' | ' . $n->no_surat_kontrak . " (" . $n->persentase . "%)" ?>
+                        <!-- Robert Taufan Nur Rahman, ST, M.Si. | 003/VI/BPL/2021 (15%) -->
+                        <div class="time text-primary"><?= $n->nama_jenis_proyek ?></div>
+                      </div>
+                    </a>
+                  <?php endforeach; ?>
+                </div>
+                <div class="dropdown-footer text-center">
+                  <!-- <a href="#">View All <i class="fas fa-chevron-right"></i></a> -->
                 </div>
               </div>
-              <div class="dropdown-list-content dropdown-list-icons">
-                <a href="#" class="dropdown-item dropdown-item-unread">
-                  <div class="dropdown-item-icon bg-primary text-white">
-                    <i class="fas fa-code"></i>
+            </li>
+          <?php endif; ?>
+          <?php if ($this->session->userdata('hakakses') === '2') : ?>
+            <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link notification-toggle nav-link-lg <?= count($this->session->userdata('notif')) > 0 ? 'beep' : '' ?>"><i class="far fa-bell"></i></a>
+              <div class="dropdown-menu dropdown-list dropdown-menu-right">
+                <div class="dropdown-header">Notifikasi Progress Proyek
+                  <div class="float-right">
+                    <!-- <a href="#">Mark All As Read</a> -->
                   </div>
-                  <div class="dropdown-item-desc">
-                    Template update is available now!
-                    <div class="time text-primary">2 Min Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-info text-white">
-                    <i class="far fa-user"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    <b>You</b> and <b>Dedik Sugiharto</b> are now friends
-                    <div class="time">10 Hours Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-success text-white">
-                    <i class="fas fa-check"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    <b>Kusnaedi</b> has moved task <b>Fix bug header</b> to <b>Done</b>
-                    <div class="time">12 Hours Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-danger text-white">
-                    <i class="fas fa-exclamation-triangle"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    Low disk space. Let's clean it!
-                    <div class="time">17 Hours Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-info text-white">
-                    <i class="fas fa-bell"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    Welcome to Stisla template!
-                    <div class="time">Yesterday</div>
-                  </div>
-                </a>
+                </div>
+                <div class="dropdown-list-content dropdown-list-icons">
+                  <?php if (count($this->session->userdata('notif')) === 0) : ?>
+                    <span style="padding: 15px">Tidak Ada Notifikasi</span>
+                  <?php endif; ?>
+                  <?php foreach ($this->session->userdata('notif') as $n) : ?>
+                    <a href="<?= base_url('ProgressProyek_c/progresslist/' . $n->proyek_id . '/' . $n->jenis_proyek) ?>" class="dropdown-item dropdown-item-unread">
+                      <!-- <div class="dropdown-item-icon bg-success text-white">
+                        <i class="fas fa-exclamation-triangle"></i>
+                      </div> -->
+                      <div class="dropdown-item-desc">
+                        <?= $n->nama_konsumen . ' | ' . $n->no_surat_kontrak . " (" . $n->persentase . "%)" ?>
+                        <!-- Robert Taufan Nur Rahman, ST, M.Si. | 003/VI/BPL/2021 (15%) -->
+                        <div class="time text-primary"><?= $n->nama_jenis_proyek . ' | ' ?><?= $n->validasi === '2' ? 'ditolak' : 'diterima' ?></div>
+                      </div>
+                    </a>
+                  <?php endforeach; ?>
+                </div>
+                <div class="dropdown-footer text-center">
+                  <!-- <a href="#">View All <i class="fas fa-chevron-right"></i></a> -->
+                </div>
               </div>
-              <div class="dropdown-footer text-center">
-                <a href="#">View All <i class="fas fa-chevron-right"></i></a>
-              </div>
-            </div>
-          </li> -->
+            </li>
+          <?php endif; ?>
           <li class="dropdown"><a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
               <img alt="image" src="<?php echo base_url(); ?>assets/img/avatar/avatar-1.png" class="rounded-circle mr-1">
               <div class="d-sm-none d-lg-inline-block">Hi, <?= $this->session->userdata('namauser') ?></div>

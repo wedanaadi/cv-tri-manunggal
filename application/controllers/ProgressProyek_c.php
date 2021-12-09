@@ -135,6 +135,14 @@ class ProgressProyek_c extends CI_Controller
       WHERE opd.`kepala_proyek` = '$kepalaproyek' AND id_proyek = '$id' AND jd.`is_aktif` ='1'";
       $data['array'] = $this->db->query($sql)->result();
     }
+    $sql = "SELECT pp.`id_progress`, op.`nama_konsumen`, op.`no_surat_kontrak`, jn.`nama_jenis_proyek`, 
+            pp.`persentase`, pp.`validasi`, pp.`proyek_id`,pp.`jenis_proyek`
+            FROM `t_progress_proyek` pp
+            INNER JOIN `t_order_proyek` op ON op.`id_proyek` = pp.`proyek_id`
+            INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
+            INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = pp.`jenis_proyek`
+            WHERE pp.`validasi` IN('1','2') AND op.`status` = '0' AND opd.`kepala_proyek` = '$kepalaproyek'";
+    $this->session->set_userdata('notif', $this->db->query($sql)->result());
     $this->load->view('progress/detail_v', $data);
   }
 
@@ -528,6 +536,14 @@ class ProgressProyek_c extends CI_Controller
             WHERE `id_progress` = '$id'";
     $data['progress'] = $this->db->query($sql)->row();
     $data['photo'] = $this->db->query("SELECT * FROM t_progress_gambar WHERE progress_id='$id'")->result();
+    $sql = "SELECT pp.`id_progress`, op.`nama_konsumen`, op.`no_surat_kontrak`, jn.`nama_jenis_proyek`, 
+            pp.`persentase`, pp.`validasi`, pp.`proyek_id`,pp.`jenis_proyek`
+            FROM `t_progress_proyek` pp
+            INNER JOIN `t_order_proyek` op ON op.`id_proyek` = pp.`proyek_id`
+            INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
+            INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = pp.`jenis_proyek`
+            WHERE pp.`validasi` = '0'";
+    $this->session->set_userdata('notif', $this->db->query($sql)->result());
     $this->load->view('progress/admindetail_v', $data);
   }
 

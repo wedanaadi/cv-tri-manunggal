@@ -54,6 +54,8 @@ class Dashboard_c extends CI_Controller
       $data['chart'] = json_encode($this->grafikbaru());
       // $data['chart'] = json_encode($this->chart());
       $data['tabel'] = $this->tabeldetil();
+      // $data['notif'] = $this->notifvalidasi();
+      $this->session->set_userdata('notif', $this->notifvalidasi());
     } else {
       $id = $this->session->userdata('kodeuser');
       $checkProses = $this->db->query("SELECT * FROM t_progress_proyek WHERE kepala_proyek ='$id'")->num_rows();
@@ -87,6 +89,7 @@ class Dashboard_c extends CI_Controller
       $data['chart'] = json_encode($this->grafikbaru($id));
       // $data['chart'] = json_encode($this->chart($id));
       $data['tabel'] = $this->tabeldetil($id);
+      $this->session->set_userdata('notif', $this->notifvalidasi());
     }
     $this->load->view('dashboard_v', $data);
   }
@@ -212,5 +215,23 @@ class Dashboard_c extends CI_Controller
     $data['proyek'] = count($array);
     $data['jn'] = count($detil);
     return $data;
+  }
+
+  public function notifvalidasi()
+  {
+    if ($this->session->userdata('hakakses') === '2') {
+      $kepalaproyek = $this->session->userdata('kodeuser');
+      $where = "WHERE pp.`validasi` IN('1','2') AND op.`status` = '0' AND opd.`kepala_proyek` = '$kepalaproyek'";
+    } else {
+      $where = "WHERE pp.`validasi` = '0'";
+    }
+    $sql = "SELECT pp.`id_progress`, op.`nama_konsumen`, op.`no_surat_kontrak`, jn.`nama_jenis_proyek`, 
+            pp.`persentase`, pp.`validasi`, pp.`proyek_id`,pp.`jenis_proyek`
+            FROM `t_progress_proyek` pp
+            INNER JOIN `t_order_proyek` op ON op.`id_proyek` = pp.`proyek_id`
+            INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
+            INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = pp.`jenis_proyek`
+            $where";
+    return $this->db->query($sql)->result();
   }
 }
