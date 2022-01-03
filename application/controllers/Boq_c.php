@@ -75,7 +75,7 @@ class Boq_c extends CI_Controller
   {
     $data = $this->input->get('param');
     $ex = explode('-', $data);
-    $checked = $this->db->query("SELECT * FROM t_boq WHERE nama_kegiatan='$ex[0]' AND jenis_proyek='$ex[1]'")->num_rows();
+    $checked = $this->db->query("SELECT * FROM t_boq WHERE nama_kegiatan='$ex[0]' AND jenis_proyek='$ex[1]' AND is_aktif='1'")->num_rows();
     echo json_encode($checked);
   }
 
@@ -202,6 +202,7 @@ class Boq_c extends CI_Controller
     $data['atas'] = $this->db->query($sql)->row();
     $this->db->select('b.*,jn.nama_jenis_proyek');
     $this->db->where('b.nama_kegiatan', $id);
+    $this->db->where('b.is_aktif', 1);
     $this->db->join('m_jenis_proyek jn', 'jn.id_jenis_proyek=b.jenis_proyek');
     $this->db->from('t_boq b');
     $data['detil'] = $this->db->get()->result();

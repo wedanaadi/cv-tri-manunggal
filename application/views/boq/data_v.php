@@ -218,26 +218,29 @@ $this->load->view('_partials/header');
     console.log('delete');
     isSave = 0;
     const id = $(this).attr('id-pk');
-    swal({
-        title: 'Hapus data ?',
-        text: 'Setelah dihapus, Anda tidak akan dapat memulihkan data ini!',
-        icon: 'warning',
-        buttons: ["Batal", "Hapus"],
-      })
-      .then((willDelete) => {
-        if (willDelete) {
-          $.ajax({
-            type: "POST",
-            url: "<?= base_url() ?>Boq_c/hapus/" + id,
-            success: function(respon) {
-              tabel.ajax.reload();
-              notifsukses('Data Kegiatan', 'dihapus');
-            }
-          });
-        } else {
-          notifgagal('Data Kegiatan');
-        }
-      });
+    Swal.fire({
+      title: 'Hapus data ?',
+      text: "Setelah dihapus, Anda tidak akan dapat memulihkan data ini!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Hapus',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          type: "POST",
+          url: "<?= base_url() ?>Boq_c/hapus/" + id,
+          success: function(respon) {
+            tabel.ajax.reload();
+            notifsukses('Data BOQ', 'dihapus');
+          }
+        });
+      } else {
+        notifgagal('Data BOQ', 'dihapus');
+      }
+    })
   });
 
   $(document).on('click', '#boq_detail', function() {

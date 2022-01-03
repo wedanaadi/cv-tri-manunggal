@@ -129,26 +129,29 @@ $this->load->view('_partials/header');
     console.log('delete');
     isSave = 0;
     const id = $(this).attr('id-pk');
-    swal({
-        title: 'Hapus data ?',
-        text: 'Setelah dihapus, Anda tidak akan dapat memulihkan data ini!',
-        icon: 'warning',
-        buttons: ["Batal", "Hapus"],
-      })
-      .then((willDelete) => {
-        if (willDelete) {
-          $.ajax({
-            type: "POST",
-            url: "<?= base_url() ?>JenisProyek_c/hapus/" + id,
-            success: function(respon) {
-              tabel.ajax.reload();
-              notifsukses('Data Jenis Proyek', 'dihapus');
-            }
-          });
-        } else {
-          notifgagal('Data Jenis Proyek');
-        }
-      });
+    Swal.fire({
+      title: 'Hapus data ?',
+      text: "Setelah dihapus, Anda tidak akan dapat memulihkan data ini!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Hapus',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          type: "POST",
+          url: "<?= base_url() ?>JenisProyek_c/hapus/" + id,
+          success: function(respon) {
+            tabel.ajax.reload();
+            notifsukses('Data Jenis Proyek', 'dihapus');
+          }
+        });
+      } else {
+        notifgagal('Data Jenis Proyek', 'dihapus');
+      }
+    })
   });
 
   $(document).on('click', '#jn_detail', function() {
