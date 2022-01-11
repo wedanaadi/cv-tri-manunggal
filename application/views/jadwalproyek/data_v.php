@@ -14,10 +14,10 @@ $this->load->view('_partials/header');
         <div class="col-12 col-md-12 col-lg-12">
           <div class="card">
             <div class="card-header">
-              <button class="btn btn-icon icon-left btn-primary note-btn" id="jp_t">
+              <a href="<?= base_url() ?>/JadwalProyek_c/addForm" class="btn btn-icon icon-left btn-primary note-btn">
                 <i class="fas fa-plus"></i>
                 Tambah
-              </button>
+              </a>
             </div>
             <div class="card-body">
               <div class="table-responsive">

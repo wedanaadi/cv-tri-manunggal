@@ -45,6 +45,11 @@ class JadwalProyek_c extends CI_Controller
     echo json_encode(['data' => $data, 'view' => $this->load->view('jadwalproyek/form_v', null, true)]);
   }
 
+  public function addForm()
+  {
+    $this->load->view('jadwalproyek/add_v');
+  }
+
   public function create()
   {
     $data = [
