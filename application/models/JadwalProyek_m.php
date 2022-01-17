@@ -19,10 +19,10 @@ class JadwalProyek_m extends CI_Model
     $this->datatables->from($this->tabel);
     $this->datatables->add_column(
       'view',
-      '<button class="btn btn-icon icon-left btn-warning" id-pk="$1" id="jp_u">
+      '<a href="' . base_url() . 'JadwalProyek_c/changeForm/$1" class="btn btn-icon icon-left btn-warning" id-pk="$1">
                                                     <i class="fas fa-edit"></i>
                                                     Ubah
-                                                </button>
+                                                </a>
                                                 <button class="btn btn-icon icon-left btn-danger" id-pk="$1" id="jp_d">
                                                     <i class="fas fa-trash"></i>
                                                     Hapus
@@ -40,10 +40,15 @@ class JadwalProyek_m extends CI_Model
     $this->db->trans_complete();
   }
 
-  function updateDB($data, $id)
+  function updateDB($data, $id, $detail)
   {
+    $this->db->trans_start();
+    $this->db->where('jadwal_id', $id);
+    $this->db->delete($this->detail);
     $this->db->where('id_jadwal', $id);
     $this->db->update($this->tabel, $data);
+    $this->db->insert_batch($this->detail, $detail);
+    $this->db->trans_complete();
   }
 
   function getBy($param, $id)
