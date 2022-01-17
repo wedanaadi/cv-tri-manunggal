@@ -142,10 +142,12 @@ class Dashboard_c extends CI_Controller
             $lanjut
             ORDER BY `nama_konsumen` ASC, `nama_kegiatan` ASC";
     $dataproyek = $this->db->query($sql)->result();
+    $isAda = false;
     foreach ($dataproyek as $p) {
       $sqlboq = "SELECT * FROM t_boq WHERE nama_kegiatan='$p->id_proyek' AND jenis_proyek='$p->jenis_proyek' AND is_aktif='1'";
       $boq = $this->db->query($sqlboq);
       if ($boq->num_rows() > 0) {
+        $isAda = true;
         $sqlProgress = "SELECT proyek_id, MAX(persentase) AS 'p', jenis_proyek, status
                         FROM `t_progress_proyek` 
                         WHERE `validasi` = '1' AND proyek_id='$p->id_proyek' AND jenis_proyek='$p->jenis_proyek'
@@ -176,44 +178,55 @@ class Dashboard_c extends CI_Controller
         }
       }
     }
-    return $array;
+    if ($isAda) {
+      return $array;
+    } else {
+      return [];
+    }
   }
 
   public function grafikbaru($id = 'kosong')
   {
     $detil = $this->tabeldetil($id);
-    $idproyek = '';
-    $array = [];
-    $SUMpersentase = 0;
-    $bagi = 0;
-    $jumlahPALL = 0;
-    foreach ($detil as $d) {
-      $countP2 = 0;
-      if ($idproyek !== $d->idproyek) {
-        $SUMpersentase = 0;
-        $idproyek = $d->idproyek;
-        foreach ($detil as $v) {
-          if ($idproyek === $v->idproyek) {
-            $countP2++;
+    if (count($detil) > 0) {
+      $idproyek = '';
+      $array = [];
+      $SUMpersentase = 0;
+      $bagi = 0;
+      $jumlahPALL = 0;
+      foreach ($detil as $d) {
+        $countP2 = 0;
+        if ($idproyek !== $d->idproyek) {
+          $SUMpersentase = 0;
+          $idproyek = $d->idproyek;
+          foreach ($detil as $v) {
+            if ($idproyek === $v->idproyek) {
+              $countP2++;
+            }
           }
+          $bagi = $countP2;
         }
-        $bagi = $countP2;
+        $SUMpersentase += $d->persentase;
+        $array[$idproyek] = (object)['p' => $SUMpersentase, 'b' => $bagi];
       }
-      $SUMpersentase += $d->persentase;
-      $array[$idproyek] = (object)['p' => $SUMpersentase, 'b' => $bagi];
-    }
 
 
-    $total = 0;
-    foreach ($array as $a) {
-      if ($a->p !== 0) {
-        $total += $a->p / $a->b;
+      $total = 0;
+      foreach ($array as $a) {
+        if ($a->p !== 0) {
+          $total += $a->p / $a->b;
+        }
       }
+      $data['total'] = $total;
+      $data['chart'] = round($total / count($array), 2);
+      $data['proyek'] = count($array);
+      $data['jn'] = count($detil);
+    } else {
+      $data['total'] = 0;
+      $data['chart'] = round(0, 2);
+      $data['proyek'] = 0;
+      $data['jn'] = 0;
     }
-    $data['total'] = $total;
-    $data['chart'] = round($total / count($array), 2);
-    $data['proyek'] = count($array);
-    $data['jn'] = count($detil);
     return $data;
   }
 

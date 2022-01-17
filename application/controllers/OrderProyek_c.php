@@ -141,14 +141,20 @@ class OrderProyek_c extends CI_Controller
     $this->db->where('id_proyek', $id);
     $data['order'] = $this->db->get('t_order_proyek')->row();
     // detail
-    $this->db->select('t_order_proyek_detail.*, jn.nama_jenis_proyek');
+    $this->db->select('t_order_proyek_detail.*, jn.nama_jenis_proyek,u.nama_user');
     $this->db->where('order_proyek_id', $id);
     $this->db->join('m_jenis_proyek jn', 'jn.id_jenis_proyek=t_order_proyek_detail.jenis_proyek');
+    $this->db->join('m_user u', 'u.id_user=t_order_proyek_detail.kepala_proyek');
     $data['detail'] = $this->db->get('t_order_proyek_detail')->result();
     // jadwal
     $this->db->where('proyek_id', $id);
     $this->db->where('is_aktif', 1);
     $data['count'] = $this->db->get('t_jadwal_proyek')->num_rows();
+    // kegiatan count
+    $whereIn = "'" . implode("','", array_column($data['detail'], 'jenis_proyek')) . "'";
+    $sqlCountKegiatan = "SELECT * FROM `m_jenis_proyek_detail`
+                           WHERE `jenis_proyek_id` IN (" . $whereIn . ")";
+    $data['countKegiatan'] = $this->db->query($sqlCountKegiatan)->num_rows();
     echo json_encode($data);
   }
 
@@ -160,13 +166,18 @@ class OrderProyek_c extends CI_Controller
       $data['order'] = $this->OrderProyek_m->getBy2('konsumen_id', $idkon)->result();
     } else {
       $data['order'] = $this->OrderProyek_m->getBy2('konsumen_id', $idkon)->row();
-      $this->db->select('t_order_proyek_detail.*, jn.nama_jenis_proyek');
+      $this->db->select('t_order_proyek_detail.*, jn.nama_jenis_proyek, u.nama_user');
       $this->db->where('order_proyek_id', $data['order']->id_proyek);
       $this->db->join('m_jenis_proyek jn', 'jn.id_jenis_proyek=t_order_proyek_detail.jenis_proyek');
+      $this->db->join('m_user u', 'u.id_user=t_order_proyek_detail.kepala_proyek');
       $data['detail'] = $this->db->get('t_order_proyek_detail')->result();
       $this->db->where('proyek_id', $data['order']->id_proyek);
       $this->db->where('is_aktif', 1);
       $data['checkJadwal'] = $this->db->get('t_jadwal_proyek')->num_rows();
+      $whereIn = "'" . implode("','", array_column($data['detail'], 'jenis_proyek')) . "'";
+      $sqlCountKegiatan = "SELECT * FROM `m_jenis_proyek_detail`
+                           WHERE `jenis_proyek_id` IN (" . $whereIn . ")";
+      $data['countKegiatan'] = $this->db->query($sqlCountKegiatan)->num_rows();
     }
     echo json_encode($data);
   }

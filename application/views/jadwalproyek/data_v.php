@@ -14,7 +14,7 @@ $this->load->view('_partials/header');
         <div class="col-12 col-md-12 col-lg-12">
           <div class="card">
             <div class="card-header">
-              <a href="<?= base_url() ?>/JadwalProyek_c/addForm" class="btn btn-icon icon-left btn-primary note-btn">
+              <a href="<?= base_url() ?>JadwalProyek_c/addForm" class="btn btn-icon icon-left btn-primary note-btn">
                 <i class="fas fa-plus"></i>
                 Tambah
               </a>

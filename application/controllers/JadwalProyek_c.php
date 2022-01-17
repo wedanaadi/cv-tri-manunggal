@@ -31,23 +31,45 @@ class JadwalProyek_c extends CI_Controller
     echo $this->JadwalProyek_m->getAll_ignited();
   }
 
-  public function form($id = false)
+  public function form()
   {
-    $data = [];
-    if ($id != false) {
-      $data['edit'] = $this->JadwalProyek_m->getBy('id_jadwal', $id);
-      // detail
-      $this->db->select('t_order_proyek_detail.*, jn.nama_jenis_proyek');
-      $this->db->where('order_proyek_id', $data['edit']->proyek_id);
-      $this->db->join('m_jenis_proyek jn', 'jn.id_jenis_proyek=t_order_proyek_detail.jenis_proyek');
-      $data['detail'] = $this->db->get('t_order_proyek_detail')->result();
+    $jenis = $this->input->get('jenis');
+    if ($this->input->get('isSave') === 'true') {
+      $volJenis = $this->input->get('vol');
+      $sql = "SELECT JPD.*, K.`nama_kegiatan` FROM `m_jenis_proyek_detail` jpd
+            INNER JOIN `m_data_kegiatan` k ON k.`id_master_kegiatan` = jpd.`kegiatan_id`
+            WHERE jpd.`jenis_proyek_id` = '$jenis'";
+      $kegQuery = $this->db->query($sql)->result();
+      foreach ($kegQuery as $value) {
+        $keg[] = (object)[
+          'jenis_proyek' => $value->jenis_proyek_id,
+          'kegiatan_id' => $value->kegiatan_id,
+          'kegiatan' => $value->nama_kegiatan,
+          'vol' => $value->vol,
+          'unit' => $value->unit,
+          'harga' => $value->harga,
+          'volJadwal' => $value->vol * $volJenis,
+          'hargaJadwal' => ($value->vol * $volJenis) * $value->harga,
+        ];
+      }
+      $data['kegiatan'] = $keg;
+      echo json_encode(['view' => $this->load->view('jadwalproyek/form_v', $data, true)]);
+    } else {
+      $proyekid = $this->input->get('proyek');
+      $sql = "SELECT jpd.*, k.`nama_kegiatan`, p.`nama_pegawai` 
+              FROM `t_jadwal_proyek_detail` jpd
+              INNER JOIN `m_data_kegiatan` k ON k.`id_master_kegiatan` = jpd.`kegiatan_id`
+              INNER JOIN `m_pegawai` p ON p.`id_pegawai` = jpd.`pegawai_id`
+              WHERE `proyek_id` = '$proyekid' AND `jenis_proyek_id` = '$jenis'";
+      $data['kegiatan'] = $this->db->query($sql)->result();
+      echo json_encode(['view' => $this->load->view('jadwalproyek/form2_v', $data, true)]);
     }
-    echo json_encode(['data' => $data, 'view' => $this->load->view('jadwalproyek/form_v', null, true)]);
   }
 
   public function addForm()
   {
-    $this->load->view('jadwalproyek/add_v');
+    $data['title'] = 'Jadwal Proyek';
+    $this->load->view('jadwalproyek/add_v', $data);
   }
 
   public function create()
@@ -60,7 +82,24 @@ class JadwalProyek_c extends CI_Controller
       'proyek_id' => $this->input->post('spmk'),
       'ket' => $this->input->post('ket'),
     ];
-    $this->JadwalProyek_m->insertDB($data);
+    for ($i = 0; $i < count($this->input->post('kegiatanid')); $i++) {
+      $detail[] = [
+        'id_detail' => uniqid(),
+        'jadwal_id' => $data['id_jadwal'],
+        'proyek_id' => $this->input->post('spmk'),
+        'jenis_proyek_id' => $this->input->post('jenisproyek')[$i],
+        'kegiatan_id' => $this->input->post('kegiatanid')[$i],
+        'pegawai_id' => $this->input->post('pegawai')[$i],
+        'durasi' => $this->input->post('durasi')[$i],
+        'startDate' => $this->input->post('mulai_pegawai')[$i],
+        'endDate' => $this->input->post('selesai_pegawai')[$i],
+        'unit' => $this->input->post('unit')[$i],
+        'vol' => $this->input->post('vol')[$i],
+        'harga' => $this->input->post('harga')[$i],
+        'total' => $this->input->post('total')[$i],
+      ];
+    }
+    $this->JadwalProyek_m->insertDB($data, $detail);
     echo json_encode(['status' => true]);
   }
 

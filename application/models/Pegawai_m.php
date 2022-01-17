@@ -3,6 +3,12 @@ class Pegawai_m extends CI_Model
 {
   private $tabel = "m_pegawai";
 
+  function getAll()
+  {
+    $this->datatables->where('is_aktif', 1);
+    return $this->db->get($this->tabel)->result();
+  }
+
   function getAll_ignited()
   {
     $this->datatables->select("id_pegawai,nama_pegawai,npwp,nik,alamat,jenis_kelamin,no_telp,jabatan,email,CONCAT(tempat_lahir,'/ ',tgl_lahir) AS ttl");

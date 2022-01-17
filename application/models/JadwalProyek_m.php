@@ -2,6 +2,7 @@
 class JadwalProyek_m extends CI_Model
 {
   private $tabel = "t_jadwal_proyek";
+  private $detail = "t_jadwal_proyek_detail";
 
   function getAll()
   {
@@ -31,9 +32,12 @@ class JadwalProyek_m extends CI_Model
     return $this->datatables->generate();
   }
 
-  function insertDB($data)
+  function insertDB($data, $detail)
   {
+    $this->db->trans_start();
     $this->db->insert($this->tabel, $data);
+    $this->db->insert_batch($this->detail, $detail);
+    $this->db->trans_complete();
   }
 
   function updateDB($data, $id)

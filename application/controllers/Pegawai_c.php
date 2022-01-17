@@ -85,4 +85,14 @@ class Pegawai_c extends CI_Controller
     $this->Pegawai_m->updateDB($data, $id);
     echo json_encode(['status' => true]);
   }
+
+  public function select2()
+  {
+    $datas = $this->Pegawai_m->getAll();
+    $k[] = [];
+    foreach ($datas as $data) {
+      $k[] = ['id' => $data->id_pegawai, 'text' => $data->nama_pegawai];
+    }
+    echo json_encode($k);
+  }
 }

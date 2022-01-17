@@ -21,26 +21,25 @@
         <tr>
           <td><?= $no; ?></td>
           <td style="width:400px">
-            <?= $k->kegiatan ?>
-            <input type="hidden" name="kegiatanid[]" id="kegiatan" value="<?= $k->kegiatan_id ?>">
-            <input type="hidden" name="jenisproyek[]" id="jenisproyek" value="<?= $k->jenis_proyek ?>">
+            <?= $k->nama_kegiatan ?>
           </td>
-          <td><select style="width:200px" name="pegawai[]" class="form-control pegawai" id="pegawai"></select></td>
+          <td><?= $k->nama_pegawai ?></td>
           <td>
-            <span id="<?= 'durasi' . $no ?>">0 Hari</span>
-            <input type="hidden" name="durasi[]" value="0" id="<?= 'durasiForm' . $no ?>">
+            <?= $k->durasi . " Hari" ?>
           </td>
-          <td><input style="width:110px" type="text" class="form-control waktu mulai" name="mulai_pegawai[]" id-no="<?= $no ?>" id="<?= 'mulai' . $no ?>"></td>
-          <td><input style="width:110px" type="text" class="form-control waktu selesai" name="selesai_pegawai[]" id-no="<?= $no ?>" id="<?= 'selesai' . $no ?>"></td>
-          <td><?= $k->unit ?><input type="hidden" name="unit[]" value="<?= $k->unit ?>"></td>
-          <td><input style="width:80px" type="text" name="vol[]" class="form-control vol" value="<?= $k->volJadwal ?>" jum-attrs="<?= $k->harga ?>" id-no="<?= $no ?>" id="vol"></td>
+          <td>
+            <?= $k->startDate ?>
+          </td>
+          <td>
+            <?= $k->endDate ?>
+          </td>
+          <td><?= $k->unit ?></td>
+          <td><?= $k->vol ?></td>
           <td>
             <?= number_format($k->harga, 0, ",", ".") ?>
-            <input type="hidden" name="harga[]" id="harga" value="<?= $k->harga ?>">
           </td>
           <td>
-            <span id="<?= 'harga' . $no ?>"><?= number_format(floor($k->hargaJadwal), 0, ",", ".") ?></span>
-            <input type="hidden" name="total[]" value="<?= floor($k->hargaJadwal) ?>" id="<?= 'totalForm' . $no ?>">
+            <?= number_format($k->total, 0, ",", ".") ?>
           </td>
         </tr>
       <?php $no++;
