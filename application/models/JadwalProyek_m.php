@@ -19,14 +19,18 @@ class JadwalProyek_m extends CI_Model
     $this->datatables->from($this->tabel);
     $this->datatables->add_column(
       'view',
-      '<a href="' . base_url() . 'JadwalProyek_c/changeForm/$1" class="btn btn-icon icon-left btn-warning" id-pk="$1">
-                                                    <i class="fas fa-edit"></i>
-                                                    Ubah
-                                                </a>
-                                                <button class="btn btn-icon icon-left btn-danger" id-pk="$1" id="jp_d">
-                                                    <i class="fas fa-trash"></i>
-                                                    Hapus
-                                                </button>',
+      '<button class="btn btn-icon icon-left btn-success" id-pk="$1" id="jp_detail">
+          <i class="fas fa-eye"></i>
+          Detail
+      </button>
+      <a href="' . base_url() . 'JadwalProyek_c/changeForm/$1" class="btn btn-icon icon-left btn-warning" id-pk="$1">
+          <i class="fas fa-edit"></i>
+          Ubah
+      </a>
+      <button class="btn btn-icon icon-left btn-danger" id-pk="$1" id="jp_d">
+          <i class="fas fa-trash"></i>
+          Hapus
+      </button>',
       'id_jadwal'
     );
     return $this->datatables->generate();

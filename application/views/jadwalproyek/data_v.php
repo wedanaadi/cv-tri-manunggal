@@ -2,6 +2,11 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 $this->load->view('_partials/header');
 ?>
+<style>
+  .modal-lg {
+    max-width: 80% !important;
+  }
+</style>
 <!-- Main Content -->
 <div class="main-content">
   <section class="section">
@@ -139,6 +144,25 @@ $this->load->view('_partials/header');
       var length = info.iLength;
       $('td:eq(0)', row).html(iDisplayIndex + 1 + info.iStart);
     }
+  });
+
+  $(document).on("click", "#jp_detail", function(e) {
+    e.preventDefault();
+    const id = $(this).attr('id-pk');
+    $.ajax({
+      method: "GET",
+      dataType: "JSON",
+      data: {
+        id
+      },
+      url: "<?= base_url() ?>JadwalProyek_c/detail",
+      success: function(respon) {
+        $(".modal-body").html(respon.view);
+        $('.modal-title').text('Jadwal Proyek Detail');
+        $('#modal').modal('show');
+      }
+    });
+    return false;
   });
 
   $(document).on('click', '#jp_t', function() {

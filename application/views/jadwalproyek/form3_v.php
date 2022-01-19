@@ -41,11 +41,11 @@
             </select>
           </td>
           <td>
-            <span id="<?= 'durasi' . $no ?>"><?= $k->durasi ?> Hari</span>
-            <input type="hidden" name="durasi[]" value="0" id="<?= 'durasiForm' . $no ?>">
+            <span id="<?= 'durasi' . $k->jenis_proyek_id . $no ?>"><?= $k->durasi ?> Hari</span>
+            <input type="hidden" name="durasi[]" value="<?= $k->durasi ?>" id="<?= 'durasiForm' . $k->jenis_proyek_id . $no ?>">
           </td>
-          <td><input style="width:110px" type="text" class="form-control waktu mulai" name="mulai_pegawai[]" id-no="<?= $no ?>" id="<?= 'mulai' . $no ?>" value="<?= $k->startDate ?>"></td>
-          <td><input style="width:110px" type="text" class="form-control waktu selesai" name="selesai_pegawai[]" id-no="<?= $no ?>" id="<?= 'selesai' . $no ?>" value="<?= $k->endDate ?>"></td>
+          <td><input style="width:110px" type="text" class="form-control waktu mulai" name="mulai_pegawai[]" id-no="<?= $k->jenis_proyek_id . $no ?>" id="<?= 'mulai' . $k->jenis_proyek_id . $no ?>" value="<?= $k->startDate ?>"></td>
+          <td><input style="width:110px" type="text" class="form-control waktu selesai" name="selesai_pegawai[]" id-no="<?= $k->jenis_proyek_id . $no ?>" id="<?= 'selesai' . $k->jenis_proyek_id . $no ?>" value="<?= $k->endDate ?>"></td>
           <td><?= $k->unit ?><input type="hidden" name="unit[]" value="<?= $k->unit ?>"></td>
           <td><input style="width:80px" type="text" name="vol[]" class="form-control vol" value="<?= $k->vol ?>" jum-attrs="<?= $k->harga ?>" id-no="<?= $no ?>" id="vol"></td>
           <td>

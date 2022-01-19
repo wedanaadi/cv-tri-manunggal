@@ -219,4 +219,24 @@ class JadwalProyek_c extends CI_Controller
   {
     echo json_encode($this->JadwalProyek_m->getBy('id_jadwal', $this->input->get('id')));
   }
+
+  public function detail()
+  {
+    $id = $this->input->get('id');
+    $sql = "SELECT jpd.*, jp.`nama_jenis_proyek`, p.`nama_pegawai`, k.`nama_kegiatan`,
+            (
+              SELECT COUNT(`jenis_proyek_id`) 
+              FROM `t_jadwal_proyek_detail` 
+              WHERE `jenis_proyek_id` = jpd.`jenis_proyek_id`
+            ) AS 'rowspan',
+            TRIM(`jpd`.`vol`)+0 AS 'vol'
+            FROM `t_jadwal_proyek_detail` jpd
+            INNER JOIN `m_jenis_proyek` jp ON jp.`id_jenis_proyek` =jpd.`jenis_proyek_id`
+            INNER JOIN `m_pegawai` p ON p.`id_pegawai` = jpd.`pegawai_id`
+            INNER JOIN `m_data_kegiatan` k ON k.`id_master_kegiatan` = jpd.`kegiatan_id`
+            WHERE `jadwal_id` = '$id'
+            ORDER BY jpd.`jenis_proyek_id` ASC, jpd.`kegiatan_id` ASC";
+    $data['detail'] = $this->db->query($sql)->result();
+    echo json_encode(['view' => $this->load->view('jadwalproyek/detail_v', $data, true)]);
+  }
 }

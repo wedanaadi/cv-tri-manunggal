@@ -1,5 +1,5 @@
 <div class="table-responsive">
-  <table class="table table-bordered" id="tabel" style="white-space: nowrap;">
+  <table class="table table-bordered" style="white-space: nowrap;">
     <thead>
       <tr>
         <th>#</th>
@@ -27,11 +27,11 @@
           </td>
           <td><select style="width:200px" name="pegawai[]" class="form-control pegawai" id="pegawai"></select></td>
           <td>
-            <span id="<?= 'durasi' . $no ?>">0 Hari</span>
-            <input type="hidden" name="durasi[]" value="0" id="<?= 'durasiForm' . $no ?>">
+            <span id="<?= 'durasi' . $k->jenis_proyek . $no ?>">0 Hari</span>
+            <input type="hidden" name="durasi[]" value="0" id="<?= 'durasiForm' . $k->jenis_proyek . $no ?>">
           </td>
-          <td><input style="width:110px" type="text" class="form-control waktu mulai" name="mulai_pegawai[]" id-no="<?= $no ?>" id="<?= 'mulai' . $no ?>"></td>
-          <td><input style="width:110px" type="text" class="form-control waktu selesai" name="selesai_pegawai[]" id-no="<?= $no ?>" id="<?= 'selesai' . $no ?>"></td>
+          <td><input style="width:110px" type="text" class="form-control waktu mulai" name="mulai_pegawai[]" id-no="<?= $k->jenis_proyek . $no ?>" id="<?= 'mulai' . $k->jenis_proyek . $no ?>"></td>
+          <td><input style="width:110px" type="text" class="form-control waktu selesai" name="selesai_pegawai[]" id-no="<?= $k->jenis_proyek . $no ?>" id="<?= 'selesai' . $k->jenis_proyek . $no ?>"></td>
           <td><?= $k->unit ?><input type="hidden" name="unit[]" value="<?= $k->unit ?>"></td>
           <td><input style="width:80px" type="text" name="vol[]" class="form-control vol" value="<?= $k->volJadwal ?>" jum-attrs="<?= $k->harga ?>" id-no="<?= $no ?>" id="vol"></td>
           <td>
