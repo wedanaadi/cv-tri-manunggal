@@ -70,12 +70,22 @@
   $(document).on('change', '.mulai,.selesai', function() {
     let dateStart = new Date($(`#mulai${$(this).attr('id-no')}`).val());
     let dateEnd = new Date($(`#selesai${$(this).attr('id-no')}`).val());
-    let diffDays = dateEnd.getDate() - dateStart.getDate();
-    if (diffDays < 0) {
+    // One day in milliseconds
+    const oneDay = 1000 * 60 * 60 * 24;
+
+    // Calculating the time difference between two dates
+    const diffInTime = dateEnd.getTime() - dateStart.getTime();
+
+    // Calculating the no. of days between two dates
+    const diffInDays = Math.round(diffInTime / oneDay);
+    if (diffInDays < 0) {
+      let today = new Date();
+      let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
       alert('Tanggal Tidak Valid');
+      $(`#mulai${$(this).attr('id-no')}`).data('daterangepicker').setDateRange(date, date);
     } else {
-      $(`#durasi${$(this).attr('id-no')}`).text(`${diffDays} Hari`);
-      $(`#durasiForm${$(this).attr('id-no')}`).val(diffDays);
+      $(`#durasi${$(this).attr('id-no')}`).text(`${diffInDays} Hari`);
+      $(`#durasiForm${$(this).attr('id-no')}`).val(diffInDays);
     }
   })
 

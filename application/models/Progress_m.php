@@ -50,7 +50,7 @@ class Progress_m extends CI_Model
 
   function getProyek($id)
   {
-    $this->db->select($this->orderp . '.*, sum(od.vol) as volume, nospmk, jdp.tanggal_mulai, jdp.tanggal_selesai,DATEDIFF(jdp.tanggal_selesai,jdp.tanggal_mulai) as durasi');
+    $this->db->select($this->orderp . '.*, sum(od.vol) as volume,count(od.vol) as countvolume, nospmk, jdp.tanggal_mulai, jdp.tanggal_selesai,DATEDIFF(jdp.tanggal_selesai,jdp.tanggal_mulai) as durasi, od.vol as voljenis, od.sat');
     $this->db->where('id_proyek', $id);
     $this->db->where('jdp.is_aktif', 1);
     $this->db->join('t_jadwal_proyek jdp', 'jdp.proyek_id=' . $this->orderp . '.id_proyek');
@@ -104,6 +104,41 @@ class Progress_m extends CI_Model
           Edit
       </a>',
       'id_progress'
+    );
+    return $this->datatables->generate();
+  }
+
+  function jenisproyek_kegiatan_ignited($p, $j)
+  {
+    $this->datatables->select("id_detail,jadwal_id,proyek_id,jenis_proyek_id,kegiatan_id, k.nama_kegiatan,(
+      SELECT IFNULL(SUM(`persentase`),0) 
+      FROM `t_progress_proyek` 
+      WHERE `proyek_id`=`jpd`.`proyek_id` 
+      AND `kegiatan_id`=`jpd`.`kegiatan_id`
+      AND `jenis_proyek` = `jpd`.`jenis_proyek_id`
+    ) AS persentase,
+    startDate,endDate,durasi,1000 as 'realisasi'");
+    $this->datatables->from('t_jadwal_proyek_detail jpd');
+    $this->datatables->join('m_data_kegiatan k', 'k.id_master_kegiatan=jpd.kegiatan_id');
+    $this->datatables->where('jpd.proyek_id', $p);
+    $this->datatables->where('jpd.jenis_proyek_id', $j);
+    $this->datatables->add_column(
+      'gambar',
+      '<td>
+        <button class="btn btn-icon icon-left btn-success fotodetil" id-pro="$1" id-jn="$2">
+          <i class="fas fa-eye"></i>
+          Lihat
+        </button>
+      </td>',
+      'proyek_id,jenis_proyek_id'
+    );
+    $this->datatables->add_column(
+      'view',
+      '<a href="' . base_url() . 'ProgressProyek_c/updateKegiatan/$1/$2/$3" class="btn btn-icon icon-left btn-warning tomboledit" id-pk="$1">
+          <i class="fas fa-sync"></i>
+          Update
+      </a>',
+      'proyek_id,jenis_proyek_id,kegiatan_id'
     );
     return $this->datatables->generate();
   }

@@ -48,7 +48,7 @@ $this->load->view('_partials/header');
           <div class="form-group row" style="margin-bottom:0px">
             <label class="col-xs-12 col-md-2 col-lg-2 col-form-label">Volume Target</label>
             <div class="col-xs-12 col-md-10 col-lg-10 col-form-label">
-              <?= $data->volume ?> Unit
+              <?= $data->volume ?> Unit <span class="text-danger">*dari <?= $data->countvolume ?> Jenis Proyek</span>
             </div>
           </div>
           <hr>
@@ -67,8 +67,10 @@ $this->load->view('_partials/header');
                   <th>Jenis Proyek</th>
                   <th>Durasi</th>
                   <th>Progress</th>
+                  <th>Vol Target</th>
                   <th>Status</th>
-                  <!-- <th>Gambar</th> -->
+                  <th>BOQ</th>
+                  <th>Realisasi</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -83,10 +85,13 @@ $this->load->view('_partials/header');
                         <div class="progress-bar bg-success" style="color: #2D2D2D; width:<?= $a->progress ?>" role="progressbar" data-width="<?= $a->progress . '%' ?>" aria-valuenow="<?= $a->progress ?>" aria-valuemin="0" aria-valuemax="100"><?= $a->progress ?>%</div>
                       </div>
                     </td>
+                    <td><?= $a->vol ?></td>
                     <td>
                       <?= $a->status === 1 ? '<span class="badge badge-success">Proyek Selesai</span>' : '<span class="badge badge-info">Proyek Berjalan</span>' ?>
                       <?= $a->validasi === 1 ? '<i class="far fa-check-circle fa-lg"></i>' : '' ?>
                     </td>
+                    <td><?= number_format(bulatkan($a->boq), 0, ',', '.') ?></td>
+                    <td>0</td>
                     <td>
                       <a href="<?= base_url('ProgressProyek_c/progresslist/' . $a->id_proyek . '/' . $a->jenis_proyek) ?>" class="btn btn-icon icon-left btn-info" id-pk="$1" id="k_u">
                         <i class="fas fa-sync"></i>

@@ -77,7 +77,7 @@ class ProgressProyek_c extends CI_Controller
     $checkProses = $this->db->query("SELECT * FROM t_progress_proyek WHERE kepala_proyek ='$kepalaproyek' AND proyek_id ='$id'")->num_rows();
     if ($checkProses > 0) {
       $sqlOrder = " SELECT `order_proyek_id`, `jenis_proyek`, `nama_jenis_proyek`, 
-                    DATEDIFF(tanggal_selesai,tanggal_mulai) AS 'durasi'
+                    DATEDIFF(tanggal_selesai,tanggal_mulai) AS 'durasi', opd.`vol`
                     FROM t_order_proyek_detail opd
                     INNER JOIN `t_order_proyek`op ON op.`id_proyek` = opd.`order_proyek_id`
                     INNER JOIN `t_jadwal_proyek` jp ON jp.`proyek_id` = op.`id_proyek`
@@ -109,7 +109,8 @@ class ProgressProyek_c extends CI_Controller
             'nama_jenis_proyek' => $order->nama_jenis_proyek,
             'progress' => $persentase,
             'status' => $sttProyeksql->num_rows() > 0 ? 1 : 0,
-            'validasi' => $validasiProyeksql->num_rows() > 0 ? 1 : 0
+            'validasi' => $validasiProyeksql->num_rows() > 0 ? 1 : 0,
+            'vol' => $order->vol,
           ];
         } else {
           $a[] = (object)[
@@ -120,13 +121,15 @@ class ProgressProyek_c extends CI_Controller
             'validasi' => '0',
             'progress' => 0,
             'status' => 0,
+            'vol' => $order->vol,
           ];
         }
       }
       $data['array'] = $a;
     } else {
       $sql = "SELECT id_proyek, `nama_jenis_proyek`, DATEDIFF(tanggal_selesai,tanggal_mulai) AS 'durasi',
-      0 AS 'validasi', 0 as progress, opd.`jenis_proyek`, 0 AS 'status'
+      0 AS 'validasi', 0 as progress, opd.`jenis_proyek`, 0 AS 'status', opd.`vol`,
+      (SELECT total FROM `t_boq` WHERE `nama_kegiatan`=op.`id_proyek` AND `jenis_proyek`=opd.`jenis_proyek`) AS 'boq'
       FROM `t_order_proyek` op
       INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
       INNER JOIN `m_jenis_proyek` jp ON jp.`id_jenis_proyek` = opd.`jenis_proyek`
@@ -156,7 +159,7 @@ class ProgressProyek_c extends CI_Controller
     $checkProses = $this->db->query("SELECT * FROM t_progress_proyek WHERE proyek_id ='$id'")->num_rows();
     if ($checkProses > 0) {
       $sqlOrder = " SELECT `order_proyek_id`, `jenis_proyek`, `nama_jenis_proyek`, 
-                    DATEDIFF(tanggal_selesai,tanggal_mulai) AS 'durasi', u.`nama_user`
+                    DATEDIFF(tanggal_selesai,tanggal_mulai) AS 'durasi', u.`nama_user`, `opd`.`vol`
                     FROM t_order_proyek_detail opd
                     INNER JOIN `t_order_proyek`op ON op.`id_proyek` = opd.`order_proyek_id`
                     INNER JOIN `t_jadwal_proyek` jp ON jp.`proyek_id` = op.`id_proyek`
@@ -190,7 +193,8 @@ class ProgressProyek_c extends CI_Controller
             'nama_user' => $order->nama_user,
             'progress' => $persentase,
             'status' => $sttProyeksql->num_rows() > 0 ? 1 : 0,
-            'validasi' => $validasiProyeksql->num_rows() > 0 ? 1 : 0
+            'validasi' => $validasiProyeksql->num_rows() > 0 ? 1 : 0,
+            'vol' => $order->vol,
           ];
         } else {
           $a[] = (object)[
@@ -201,14 +205,15 @@ class ProgressProyek_c extends CI_Controller
             'nama_user' => $order->nama_user,
             'validasi' => '0',
             'progress' => 0,
-            'status' => 0
+            'status' => 0,
+            'vol' => $order->vol,
           ];
         }
       }
       $data['array'] = $a;
     } else {
       $sql = "SELECT id_proyek, `nama_jenis_proyek`, DATEDIFF(tanggal_selesai,tanggal_mulai) AS 'durasi',
-      0 AS 'validasi', 0 as progress, opd.`jenis_proyek`, 0 AS 'status', u.`nama_user`
+      0 AS 'validasi', 0 as progress, opd.`jenis_proyek`, 0 AS 'status', u.`nama_user`, opd.`vol`
       FROM `t_order_proyek` op
       INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
       INNER JOIN `m_jenis_proyek` jp ON jp.`id_jenis_proyek` = opd.`jenis_proyek`
@@ -227,6 +232,7 @@ class ProgressProyek_c extends CI_Controller
     $data['data'] = $this->Progress_m->getProyek($proyek);
     $data['jenisproyek'] = $this->db->query("SELECT * FROM m_jenis_proyek WHERE id_jenis_proyek='$jenis'")->row();
     $data['jenisproyekstatus'] = $this->db->query("SELECT * FROM t_progress_proyek WHERE jenis_proyek='$jenis' AND proyek_id='$proyek' AND status='1' AND validasi='1'")->num_rows();
+    $data['boq'] = $this->db->query("SELECT * FROM t_boq WHERE jenis_proyek='$jenis' AND nama_kegiatan='$proyek' AND is_aktif='1'")->row();
     $data['idproyek'] = json_encode($proyek);
     $data['idjenis'] = json_encode($jenis);
     $this->load->view('progress/progress_v', $data);
@@ -242,6 +248,16 @@ class ProgressProyek_c extends CI_Controller
     $data['idproyek'] = json_encode($proyek);
     $data['idjenis'] = json_encode($jenis);
     $this->load->view('progress/progress_admin_v', $data);
+  }
+
+  public function updateKegiatan($proyek, $jenis, $kegiatan)
+  {
+    $data['title'] = "Progress Proyek";
+    $data['data'] = $this->Progress_m->getProyek($proyek);
+    $data['boq'] = $this->db->query("SELECT * FROM t_boq WHERE jenis_proyek='$jenis' AND nama_kegiatan='$proyek' AND is_aktif='1'")->row();
+    $data['jenisproyek'] = $this->db->query("SELECT * FROM m_jenis_proyek WHERE id_jenis_proyek='$jenis'")->row();
+    $data['jenisproyekstatus'] = $this->db->query("SELECT * FROM t_progress_proyek WHERE jenis_proyek='$jenis' AND proyek_id='$proyek' AND status='1' AND validasi='1'")->num_rows();
+    $this->load->view('progress/progress_kegiatan_v', $data);
   }
 
   public function formAdd($proyek, $jn)
@@ -509,6 +525,14 @@ class ProgressProyek_c extends CI_Controller
     $idjenis = $this->input->post('jenis');
     header('Content-Type: application/json');
     echo $this->Progress_m->progressjn_ignited($idproyek, $idjenis, $this->session->userdata('kodeuser'));
+  }
+
+  public function ignited_jenisproyek_kegiatan()
+  {
+    $idproyek = $this->input->post('proyek');
+    $idjenis = $this->input->post('jenis');
+    header('Content-Type: application/json');
+    echo $this->Progress_m->jenisproyek_kegiatan_ignited($idproyek, $idjenis);
   }
 
   public function ignited_progress_admin()

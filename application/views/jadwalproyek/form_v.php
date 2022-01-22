@@ -27,8 +27,8 @@
           </td>
           <td><select style="width:200px" name="pegawai[]" class="form-control pegawai" id="pegawai"></select></td>
           <td>
-            <span id="<?= 'durasi' . $k->jenis_proyek . $no ?>">0 Hari</span>
-            <input type="hidden" name="durasi[]" value="0" id="<?= 'durasiForm' . $k->jenis_proyek . $no ?>">
+            <span id="<?= 'durasi' . $k->jenis_proyek . $no ?>">1 Hari</span>
+            <input type="hidden" name="durasi[]" value="1" id="<?= 'durasiForm' . $k->jenis_proyek . $no ?>">
           </td>
           <td><input style="width:110px" type="text" class="form-control waktu mulai" name="mulai_pegawai[]" id-no="<?= $k->jenis_proyek . $no ?>" id="<?= 'mulai' . $k->jenis_proyek . $no ?>"></td>
           <td><input style="width:110px" type="text" class="form-control waktu selesai" name="selesai_pegawai[]" id-no="<?= $k->jenis_proyek . $no ?>" id="<?= 'selesai' . $k->jenis_proyek . $no ?>"></td>
@@ -71,12 +71,23 @@
   $(document).on('change', '.mulai,.selesai', function() {
     let dateStart = new Date($(`#mulai${$(this).attr('id-no')}`).val());
     let dateEnd = new Date($(`#selesai${$(this).attr('id-no')}`).val());
-    let diffDays = dateEnd.getDate() - dateStart.getDate();
-    if (diffDays < 0) {
+    dateEnd.setDate(dateEnd.getDate() + 1);
+    // One day in milliseconds
+    const oneDay = 1000 * 60 * 60 * 24;
+
+    // Calculating the time difference between two dates
+    const diffInTime = dateEnd.getTime() - dateStart.getTime();
+
+    // Calculating the no. of days between two dates
+    const diffInDays = Math.round(diffInTime / oneDay);
+    if (diffInDays <= 0) {
+      let today = new Date();
+      let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
       alert('Tanggal Tidak Valid');
+      $(`#mulai${$(this).attr('id-no')}`).data('daterangepicker').setDateRange(date, date);
     } else {
-      $(`#durasi${$(this).attr('id-no')}`).text(`${diffDays} Hari`);
-      $(`#durasiForm${$(this).attr('id-no')}`).val(diffDays);
+      $(`#durasi${$(this).attr('id-no')}`).text(`${diffInDays} Hari`);
+      $(`#durasiForm${$(this).attr('id-no')}`).val(diffInDays);
     }
   })
 

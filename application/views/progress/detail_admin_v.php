@@ -65,6 +65,7 @@ $this->load->view('_partials/header');
                     #
                   </th>
                   <th>Jenis Proyek</th>
+                  <th>Volume</th>
                   <th>Durasi</th>
                   <th>Kepala Proyek</th>
                   <th>Progress</th>
@@ -78,6 +79,7 @@ $this->load->view('_partials/header');
                   <tr>
                     <td><?= $i + 1; ?></td>
                     <td><?= $a->nama_jenis_proyek ?></td>
+                    <td><?= $a->vol ?></td>
                     <td><?= $a->durasi ?></td>
                     <td><?= $a->nama_user ?></td>
                     <td>

@@ -15,69 +15,95 @@ $this->load->view('_partials/header');
               <h5><?= $data->nama_proyek_pekerjaan ?></h5>
             </div>
           </div>
-          <div class="form-group row" style="margin-bottom:0px">
-            <label class="col-xs-12 col-md-2 col-lg-2 col-form-label">Nama Konsumen/PPK</label>
-            <div class="col-xs-12 col-md-10 col-lg-10 col-form-label">
-              <?= $data->nama_konsumen ?>
-            </div>
-          </div>
-          <div class="form-group row" style="margin-bottom:0px">
-            <label class="col-xs-12 col-md-2 col-lg-2 col-form-label">No SPMK</label>
-            <div class="col-xs-12 col-md-10 col-lg-10 col-form-label">
-              <?= $data->nospmk ?>
-            </div>
-          </div>
-          <div class="form-group row" style="margin-bottom:0px">
-            <label class="col-xs-12 col-md-2 col-lg-2 col-form-label">No SPK</label>
-            <div class="col-xs-12 col-md-10 col-lg-10 col-form-label">
-              <?= $data->no_surat_kontrak ?>
-            </div>
-          </div>
-          <div class="form-group row" style="margin-bottom:0px">
-            <label class="col-xs-12 col-md-2 col-lg-2 col-form-label">Tanggal Mulai</label>
-            <div class="col-xs-12 col-md-10 col-lg-10 col-form-label">
-              <?= $data->tanggal_mulai ?>
-            </div>
-          </div>
-          <div class="form-group row" style="margin-bottom:0px">
-            <label class="col-xs-12 col-md-2 col-lg-2 col-form-label">Tanggal Selesai</label>
-            <div class="col-xs-12 col-md-10 col-lg-10 col-form-label">
-              <?= $data->tanggal_selesai ?>
-            </div>
-          </div>
-          <div class="form-group row" style="margin-bottom:0px">
-            <label class="col-xs-12 col-md-2 col-lg-2 col-form-label">Volume Target</label>
-            <div class="col-xs-12 col-md-10 col-lg-10 col-form-label">
-              <?= $data->volume ?> Unit
-            </div>
-          </div>
+          <table style="width:100%">
+            <tr>
+              <td>Nama Konsumen/PPK</td>
+              <td>:</td>
+              <td><?= $data->nama_konsumen ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>No SPMK</td>
+              <td>:</td>
+              <td><?= $data->nospmk ?></td>
+              <td>&nbsp;</td>
+              <td>Harga Satuan Proyek</td>
+              <td>:</td>
+              <td>Rp. <?= number_format(bulatkan($boq->total_harga_satuan), 0, ',', '.') ?></td>
+            </tr>
+            <tr>
+              <td>No SPK</td>
+              <td>:</td>
+              <td><?= $data->no_surat_kontrak ?></td>
+              <td>&nbsp;</td>
+              <td>Total BOQ per Jenis Proyek</td>
+              <td>:</td>
+              <td>Rp. <?= number_format(bulatkan($boq->total), 0, ',', '.') ?></td>
+            </tr>
+            <tr>
+              <td>Tanggal Mulai</td>
+              <td>:</td>
+              <td><?= $data->tanggal_mulai ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>Tanggal Selesai</td>
+              <td>:</td>
+              <td><?= $data->tanggal_selesai ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>Volume Target</td>
+              <td>:</td>
+              <td><?= $data->voljenis . ' ' . $data->sat ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+          </table>
           <hr>
           <div class="row">
             <div class="col text-center">
               <h4 style="background-color: #D7D7D7; color: #2D2D2D; padding: 10px; font-weight: 900;"><?= $jenisproyek->nama_jenis_proyek ?> <?= $jenisproyekstatus !== 0 ? '<button type="button" class="btn btn-primary btn-icon icon-left"> Proyek Selesai <span class="badge badge-transparent"><i class="far fa-check-circle fa-10x"></i></span></button>' : '' ?></h4>
             </div>
           </div>
-          <?php if ($jenisproyekstatus === 0) : ?>
-            <a href="<?= base_url('ProgressProyek_c/formAdd/' . $data->id_proyek . '/' . $jenisproyek->id_jenis_proyek) ?>" class="btn btn-icon icon-left btn-primary note-btn" id="pegawai_t">
-              <i class="fas fa-plus"></i>
-              Tambah
-            </a>
-          <?php endif; ?>
           <hr>
           <div class="table-responsive">
             <table class="table table-striped nowrap" id="progress_tabel" style="width:100%">
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Tanggal</th>
-                  <th>Keterangan</th>
+                  <th>Kegiatan</th>
+                  <th>Tanggal Mulai</th>
+                  <th>Tanggal Selesai</th>
+                  <th>Durasi</th>
+                  <th>Realisasi</th>
                   <th>Persentase</th>
-                  <th>Status</th>
-                  <th>Validasi Keterangan</th>
                   <th>Gambar</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
+              <tfoot>
+                <tr>
+                  <th colspan="5" class="text-right">
+                    <h5>Total Realisasi :</h5>
+                  </th>
+                  <th class="text-right">
+                    0
+                  </th>
+                  <th colspan="3">&nbsp;</th>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -139,14 +165,13 @@ $this->load->view('_partials/header');
     serverSide: true,
     scrollX: true,
     scrollY: false,
-    fixedHeader: true,
-    crollCollapse: true,
+    scrollCollapse: true,
     fixedColumns: {
       leftColumns: 0,
-      rightColumns: 1
+      rightColumns: 1,
     },
     ajax: {
-      "url": "<?php echo base_url() . 'ProgressProyek_c/ignited_progress' ?>",
+      "url": "<?php echo base_url() . 'ProgressProyek_c/ignited_jenisproyek_kegiatan' ?>",
       "type": "POST",
       data: {
         proyek: idproyek,
@@ -160,34 +185,40 @@ $this->load->view('_partials/header');
         searchable: false
       },
       {
-        "data": "tanggal",
+        "data": "nama_kegiatan"
+      },
+      {
+        "data": "startDate",
         render: function(v) {
           var tgl = v.split(' ')[0].split('-');
           return tgl[2] + '-' + tgl[1] + '-' + tgl[0];
         }
       },
       {
-        "data": "ket"
-      },
-      {
-        "data": "persentases"
-      },
-      {
-        "data": "validasi",
+        "data": "endDate",
         render: function(v) {
-          var k = '';
-          if (v === '0') {
-            k = 'Menunggu Validasi';
-          } else if (v === '1') {
-            k = 'Diterima';
-          } else {
-            k = 'Ditolak'
-          }
-          return k;
+          var tgl = v.split(' ')[0].split('-');
+          return tgl[2] + '-' + tgl[1] + '-' + tgl[0];
         }
       },
       {
-        "data": "validasi_ket"
+        "data": "durasi",
+        render: function(v) {
+          return `${v} Hari`;
+        }
+      },
+      {
+        "data": "realisasi",
+        render: $.fn.dataTable.render.number('.', ',', 0, ''),
+        class: "text-right"
+      },
+      {
+        "data": "persentase",
+        render: function(v) {
+          return `<div class="progress mb-3">
+                    <div class="progress-bar bg-success" style="color: #2D2D2D; width: ${v}%;" role="progressbar" data-width="${v}%" aria-valuenow="${v}" aria-valuemin="0" aria-valuemax="100">${v} %</div>
+                  </div>`;
+        }
       },
       {
         "data": "gambar",
@@ -210,10 +241,36 @@ $this->load->view('_partials/header');
       var page = info.iPage;
       var length = info.iLength;
       $('td:eq(0)', row).html(iDisplayIndex + 1 + info.iStart);
-      if (data.validasi === '1') {
-        $('.tomboledit', row).css('display', 'none');
-        $('td:eq(7)', row).text('Tidak Bisa Diubah');
-      }
+      // if (data.validasi === '1') {
+      // $('.tomboledit', row).css('display', 'none');
+      // $('td:eq(7)', row).text('Tidak Bisa Diubah');
+      // }
+    },
+    footerCallback: function(row, data, start, end, display) {
+      var api = this.api(),
+        data;
+
+      // Remove the formatting to get integer data for summation
+      var intVal = function(i) {
+        return typeof i === 'string' ?
+          i.replace(/[\$,]/g, '') * 1 :
+          typeof i === 'number' ?
+          i : 0;
+      };
+
+      total = api
+        .column(5, {
+          page: 'current'
+        })
+        .data()
+        .reduce(function(a, b) {
+          return intVal(a) + intVal(b);
+        }, 0);
+
+      var numFormat = $.fn.dataTable.render.number('.', '.', 0, '').display;
+      $(api.column(5).footer()).html(
+        `<h5>${numFormat(total)}</h5>`
+      );
     }
   });
 
