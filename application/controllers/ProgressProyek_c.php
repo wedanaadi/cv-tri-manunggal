@@ -264,7 +264,7 @@ class ProgressProyek_c extends CI_Controller
                   SELECT vol FROM `t_order_proyek_detail` topd 
                   WHERE `jenis_proyek` = jpd.`jenis_proyek_id`
                   AND `order_proyek_id` = jpd.`proyek_id`
-                ) AS 'voljadwal', 
+                ) AS 'volorder', 
                 (
                   SELECT sat FROM `t_order_proyek_detail` topd 
                   WHERE `jenis_proyek` = jpd.`jenis_proyek_id`

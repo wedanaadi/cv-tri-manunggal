@@ -68,7 +68,43 @@ $this->load->view('_partials/header');
             <tr>
               <td>Volume Target</td>
               <td>:</td>
-              <td><?= $data->voljadwal . ' ' . $data->satjadwal ?></td>
+              <td><?= $data->volorder . ' ' . $data->satjadwal ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>Volume Kegiatan</td>
+              <td>:</td>
+              <td><?= $data->volkegiatan . ' ' . $data->unit ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>Total Volume Kegiatan</td>
+              <td>:</td>
+              <td><?= $data->voljadwal . ' ' . $data->unit ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>Harga Satuan Proyek</td>
+              <td>:</td>
+              <td>Rp. <?= number_format(bulatkan($boq->total_harga_satuan), 0, ',', '.') ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>Total Boq Jenis Proyek</td>
+              <td>:</td>
+              <td>Rp. <?= number_format(bulatkan($boq->total), 0, ',', '.') ?></td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
