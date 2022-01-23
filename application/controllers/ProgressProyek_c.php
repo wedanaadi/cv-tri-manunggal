@@ -253,14 +253,40 @@ class ProgressProyek_c extends CI_Controller
   public function updateKegiatan($proyek, $jenis, $kegiatan)
   {
     $data['title'] = "Progress Proyek";
-    $data['data'] = $this->Progress_m->getProyek($proyek);
+    $sqldata =  "SELECT jpd.*, jp.`nama_jenis_proyek`, TRIM(jpd.`vol`)+0 AS 'voljadwal',
+                dk.`nama_kegiatan`,
+                (
+                  SELECT vol FROM `m_jenis_proyek_detail` jnpd 
+                  WHERE jnpd.`kegiatan_id` = jpd.`kegiatan_id` 
+                  AND jnpd.`jenis_proyek_id`=jpd.`jenis_proyek_id`
+                ) AS 'volkegiatan',
+                (
+                  SELECT vol FROM `t_order_proyek_detail` topd 
+                  WHERE `jenis_proyek` = jpd.`jenis_proyek_id`
+                  AND `order_proyek_id` = jpd.`proyek_id`
+                ) AS 'voljadwal', 
+                (
+                  SELECT sat FROM `t_order_proyek_detail` topd 
+                  WHERE `jenis_proyek` = jpd.`jenis_proyek_id`
+                  AND `order_proyek_id` = jpd.`proyek_id`
+                ) AS 'satjadwal', 
+                op.`nama_konsumen`, op.`no_surat_kontrak`, op.`nospmk`
+                FROM `t_jadwal_proyek_detail` jpd
+                INNER JOIN `m_jenis_proyek` jp ON jp.`id_jenis_proyek` = jpd.`jenis_proyek_id`
+                INNER JOIN m_data_kegiatan dk ON dk.`id_master_kegiatan` = jpd.`kegiatan_id`
+                INNER JOIN `t_order_proyek` op ON op.`id_proyek` = jpd.`proyek_id`
+                WHERE jpd.`kegiatan_id` = '$kegiatan'
+                AND jpd.`proyek_id` = '$proyek'
+                AND jpd.`jenis_proyek_id` = '$jenis'";
+    $data['data'] = $this->db->query($sqldata)->row();
     $data['boq'] = $this->db->query("SELECT * FROM t_boq WHERE jenis_proyek='$jenis' AND nama_kegiatan='$proyek' AND is_aktif='1'")->row();
     $data['jenisproyek'] = $this->db->query("SELECT * FROM m_jenis_proyek WHERE id_jenis_proyek='$jenis'")->row();
     $data['jenisproyekstatus'] = $this->db->query("SELECT * FROM t_progress_proyek WHERE jenis_proyek='$jenis' AND proyek_id='$proyek' AND status='1' AND validasi='1'")->num_rows();
+    $data['idkegiatan'] = $kegiatan;
     $this->load->view('progress/progress_kegiatan_v', $data);
   }
 
-  public function formAdd($proyek, $jn)
+  public function formAdd($proyek, $jn, $kegiatan)
   {
     $kepalaproyek = $this->session->userdata('kodeuser');
     $data['isSave'] = json_encode('save');

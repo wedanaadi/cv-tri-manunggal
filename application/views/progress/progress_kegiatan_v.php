@@ -10,12 +10,16 @@ $this->load->view('_partials/header');
     <div class="section-body">
       <div class="card">
         <div class="card-body">
-          <div class="form-group row" style="margin-bottom:0px">
-            <div class="col-xs-12 col-md-12 col-lg-12 col-form-label">
-              <h5><?= $data->nama_proyek_pekerjaan ?></h5>
-            </div>
-          </div>
           <table style="width:100%">
+            <tr>
+              <td>Jenis Proyek</td>
+              <td>:</td>
+              <td><?= $data->nama_jenis_proyek ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
             <tr>
               <td>Nama Konsumen/PPK</td>
               <td>:</td>
@@ -30,32 +34,32 @@ $this->load->view('_partials/header');
               <td>:</td>
               <td><?= $data->nospmk ?></td>
               <td>&nbsp;</td>
-              <td>Harga Satuan Proyek</td>
-              <td>:</td>
-              <td>Rp. <?= number_format(bulatkan($boq->total_harga_satuan), 0, ',', '.') ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
             </tr>
             <tr>
               <td>No SPK</td>
               <td>:</td>
               <td><?= $data->no_surat_kontrak ?></td>
               <td>&nbsp;</td>
-              <td>Total BOQ per Jenis Proyek</td>
-              <td>:</td>
-              <td>Rp. <?= number_format(bulatkan($boq->total), 0, ',', '.') ?></td>
-            </tr>
-            <tr>
-              <td>Tanggal Mulai</td>
-              <td>:</td>
-              <td><?= $data->tanggal_mulai ?></td>
-              <td>&nbsp;</td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
             </tr>
             <tr>
-              <td>Tanggal Selesai</td>
+              <td>Tanggal Mulai Kegiatan</td>
               <td>:</td>
-              <td><?= $data->tanggal_selesai ?></td>
+              <td><?= $data->startDate ?></td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>Tanggal Selesai Kegiatan</td>
+              <td>:</td>
+              <td><?= $data->endDate ?></td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
@@ -64,7 +68,7 @@ $this->load->view('_partials/header');
             <tr>
               <td>Volume Target</td>
               <td>:</td>
-              <td><?= $data->voljenis . ' ' . $data->sat ?></td>
+              <td><?= $data->voljadwal . ' ' . $data->satjadwal ?></td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
@@ -78,7 +82,7 @@ $this->load->view('_partials/header');
             </div>
           </div>
           <?php if ($jenisproyekstatus === 0) : ?>
-            <a href="<?= base_url('ProgressProyek_c/formAdd/' . $data->id_proyek . '/' . $jenisproyek->id_jenis_proyek) ?>" class="btn btn-icon icon-left btn-primary note-btn" id="pegawai_t">
+            <a href="<?= base_url('ProgressProyek_c/formAdd/' . $data->proyek_id . '/' . $data->jenis_proyek_id . '/' . $idkegiatan) ?>" class="btn btn-icon icon-left btn-primary note-btn" id="pegawai_t">
               <i class="fas fa-plus"></i>
               Tambah
             </a>
@@ -89,13 +93,15 @@ $this->load->view('_partials/header');
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Kegiatan</th>
-                  <th>Tanggal Mulai</th>
-                  <th>Tanggal Selesai</th>
-                  <th>Durasi</th>
-                  <th>Realisasi</th>
+                  <th>Tanggal</th>
+                  <th>Progress Proyek</th>
                   <th>Persentase</th>
+                  <th>Status Progress</th>
                   <th>Gambar</th>
+                  <th>Total Pengeluaran</th>
+                  <th>Keterangan</th>
+                  <th>Status Pengeluaran</th>
+                  <th>Validasi Keterangan</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
