@@ -143,6 +143,40 @@ class Progress_m extends CI_Model
     return $this->datatables->generate();
   }
 
+  public function progress_kegiatan_ignited($proyek, $jenis, $kegiatan)
+  {
+    $this->datatables->select("id_progress,proyek_id,jenis_proyek,kegiatan_id,tanggal,ket,persentase,status,
+                                validasi_ket,validasi,progress,
+                                (
+                                  SELECT IFNULL(SUM(`harga_pengeluaran`),0) 
+                                  FROM `t_pengeluaran_progress` 
+                                  WHERE `progress_id` = pp.`id_progress`
+                                ) AS 'pengeluaran'");
+    $this->datatables->from('t_progress_proyek pp');
+    $this->datatables->where('pp.proyek_id', $proyek);
+    $this->datatables->where('pp.jenis_proyek', $jenis);
+    $this->datatables->where('pp.kegiatan_id', $kegiatan);
+    $this->datatables->add_column(
+      'gambar',
+      '<td>
+        <button class="btn btn-icon icon-left btn-success fotodetil" id-pro="$1">
+          <i class="fas fa-eye"></i>
+          Lihat
+        </button>
+      </td>',
+      'id_progress'
+    );
+    $this->datatables->add_column(
+      'view',
+      '<a href="' . base_url() . 'ProgressProyek_c/formUbah/$1" class="btn btn-icon icon-left btn-warning tomboledit" id-pk="$1">
+          <i class="fas fa-pen"></i>
+          Edit
+      </a>',
+      'id_progress'
+    );
+    return $this->datatables->generate();
+  }
+
   function getDetail($id)
   {
     $this->db->select("pp.`id_progress`, pp.`proyek_id`, pp.`jenis_proyek`, jn.nama_jenis_proyek");
