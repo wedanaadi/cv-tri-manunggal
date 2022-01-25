@@ -349,7 +349,7 @@ $this->load->view('_partials/header');
       var page = info.iPage;
       var length = info.iLength;
       $('td:eq(0)', row).html(iDisplayIndex + 1 + info.iStart);
-      if (data.status === '1') {
+      if (data.validasi !== 1) {
         $('.tomboledit', row).css('display', 'none');
         $('td:eq(10)', row).html(`<span class="badge badge-danger">Tidak dapat diubah</span>`);
       }

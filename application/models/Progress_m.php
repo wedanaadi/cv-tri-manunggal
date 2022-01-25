@@ -122,7 +122,11 @@ class Progress_m extends CI_Model
     (
       SELECT IFNULL(SUM(harga_pengeluaran),0)
       FROM t_pengeluaran_progress
-      WHERE kegiatan_id = `jpd`.kegiatan_id
+      INNER JOIN `t_progress_proyek` ON `t_progress_proyek`.`id_progress` = `t_pengeluaran_progress`.`progress_id`
+      WHERE `t_pengeluaran_progress`.`kegiatan_id` = `jpd`.kegiatan_id
+      AND `t_pengeluaran_progress`.`proyek_id` = `jpd`.proyek_id
+      AND `t_pengeluaran_progress`.`jenis_proyek_id` = `jpd`.jenis_proyek_id
+      AND `t_progress_proyek`.`validasi` = '1'
     ) AS realisasi");
     $this->datatables->from('t_jadwal_proyek_detail jpd');
     $this->datatables->join('m_data_kegiatan k', 'k.id_master_kegiatan=jpd.kegiatan_id');

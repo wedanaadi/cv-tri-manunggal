@@ -89,19 +89,21 @@ class ProgressProyek_c extends CI_Controller
         $sttProyeksql = $this->db->query("SELECT * FROM t_progress_proyek WHERE proyek_id='$order->order_proyek_id' AND jenis_proyek='$order->jenis_proyek' AND status='1' AND validasi != '2'");
         $validasiProyeksql = $this->db->query("SELECT * FROM t_progress_proyek WHERE proyek_id='$order->order_proyek_id' AND jenis_proyek='$order->jenis_proyek' AND status='1' AND validasi='1'");
         $checkProses = $executeSql->num_rows();
+        $boq = $this->db->query("SELECT * FROM t_boq WHERE nama_kegiatan='$order->order_proyek_id' AND jenis_proyek='$order->jenis_proyek' AND is_aktif='1'")->row();
+        $realisasi = $this->db->query("SELECT IFNULL(SUM(harga_pengeluaran),0) AS 'pengeluaran' 
+                                        FROM t_pengeluaran_progress 
+                                        INNER JOIN `t_progress_proyek` ON `t_progress_proyek`.`id_progress` = `t_pengeluaran_progress`.`progress_id`
+                                        WHERE `t_pengeluaran_progress`.`proyek_id`='$order->order_proyek_id' 
+                                        AND `t_pengeluaran_progress`.`jenis_proyek_id`='$order->jenis_proyek'
+                                        AND `t_progress_proyek`.`validasi`")->row();
         if ($checkProses > 0) {
           $findProses = $executeSql->row();
-          $sqlpersentase = "SELECT * FROM t_progress_proyek WHERE proyek_id='$order->order_proyek_id' AND jenis_proyek='$order->jenis_proyek' AND validasi='1' ORDER BY `tanggal` DESC";
-          $dataprogress  = $this->db->query($sqlpersentase)->result();
-          $persentase = 0;
-          for ($i = 0; $i < count($dataprogress); $i++) {
-            $index = count($dataprogress) - 1;
-            if ($i ===  $index) {
-              $persentase += $dataprogress[$i]->persentase;
-            } else {
-              $persentase += ($dataprogress[$i]->persentase - $dataprogress[$i + 1]->persentase);
-            }
-          }
+          $sqlpersentase = "SELECT SUM(persentase) as 'totalPersentase' FROM t_progress_proyek WHERE proyek_id='$order->order_proyek_id' AND jenis_proyek='$order->jenis_proyek' AND validasi='1' ORDER BY `tanggal` DESC";
+          $dataprogress  = $this->db->query($sqlpersentase)->row()->totalPersentase;
+          $countkegiatan = $this->db->query("SELECT COUNT(`id_detail`) AS 'jumlahKegiatan' FROM `t_jadwal_proyek_detail` 
+                            WHERE `proyek_id` = '$order->order_proyek_id'
+                            AND `jenis_proyek_id` = '$order->jenis_proyek'")->row()->jumlahKegiatan;
+          $persentase = round(($dataprogress / $countkegiatan), 2);
           $a[] = (object)[
             'id_proyek' => $findProses->proyek_id,
             'jenis_proyek' => $findProses->jenis_proyek,
@@ -111,6 +113,8 @@ class ProgressProyek_c extends CI_Controller
             'status' => $sttProyeksql->num_rows() > 0 ? 1 : 0,
             'validasi' => $validasiProyeksql->num_rows() > 0 ? 1 : 0,
             'vol' => $order->vol,
+            'boq' => $boq->total,
+            'realisasi' => $realisasi->pengeluaran
           ];
         } else {
           $a[] = (object)[
@@ -122,21 +126,30 @@ class ProgressProyek_c extends CI_Controller
             'progress' => 0,
             'status' => 0,
             'vol' => $order->vol,
+            'boq' => $boq->total,
+            'realisasi' => $realisasi->pengeluaran
           ];
         }
       }
       $data['array'] = $a;
     } else {
-      $sql = "SELECT id_proyek, `nama_jenis_proyek`, DATEDIFF(tanggal_selesai,tanggal_mulai) AS 'durasi',
+      $sqlarray = "SELECT id_proyek, `nama_jenis_proyek`, DATEDIFF(tanggal_selesai,tanggal_mulai) AS 'durasi',
       0 AS 'validasi', 0 as progress, opd.`jenis_proyek`, 0 AS 'status', opd.`vol`,
-      (SELECT total FROM `t_boq` WHERE `nama_kegiatan`=op.`id_proyek` AND `jenis_proyek`=opd.`jenis_proyek`) AS 'boq'
+      (SELECT total FROM `t_boq` WHERE `nama_kegiatan`=op.`id_proyek` AND `jenis_proyek`=opd.`jenis_proyek`) AS 'boq',
+      (
+        SELECT IFNULL(SUM(`harga_pengeluaran`),0) FROM `t_pengeluaran_progress`
+        INNER JOIN `t_progress_proyek` ON `t_progress_proyek`.`id_progress` = `t_pengeluaran_progress`.`progress_id`
+        WHERE `t_pengeluaran_progress`.`proyek_id` = op.`id_proyek`
+        AND `t_pengeluaran_progress`.`jenis_proyek_id` = opd.`jenis_proyek`
+        AND `t_progress_proyek`.`validasi` = '1'
+      ) AS 'realisasi'
       FROM `t_order_proyek` op
       INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
       INNER JOIN `m_jenis_proyek` jp ON jp.`id_jenis_proyek` = opd.`jenis_proyek`
       INNER JOIN `t_jadwal_proyek` jd ON jd.`proyek_id` = op.`id_proyek`
       -- LEFT JOIN `t_progress_proyek` pp ON pp.`proyek_id` = op.`id_proyek`
       WHERE opd.`kepala_proyek` = '$kepalaproyek' AND id_proyek = '$id' AND jd.`is_aktif` ='1'";
-      $data['array'] = $this->db->query($sql)->result();
+      $data['array'] = $this->db->query($sqlarray)->result();
     }
     $sql = "SELECT pp.`id_progress`, op.`nama_konsumen`, op.`no_surat_kontrak`, jn.`nama_jenis_proyek`, 
             pp.`persentase`, pp.`validasi`, opd.`order_proyek_id`,opd.`jenis_proyek`
@@ -231,7 +244,22 @@ class ProgressProyek_c extends CI_Controller
     $data['title'] = 'Jenis Proyek Detail';
     $data['data'] = $this->Progress_m->getProyek($proyek);
     $data['jenisproyek'] = $this->db->query("SELECT * FROM m_jenis_proyek WHERE id_jenis_proyek='$jenis'")->row();
-    $data['jenisproyekstatus'] = $this->db->query("SELECT * FROM t_progress_proyek WHERE jenis_proyek='$jenis' AND proyek_id='$proyek' AND status='1' AND validasi='1'")->num_rows();
+    $sqlPersentaseJenisProyek = $this->db->query("SELECT IFNULL(SUM(`persentase`),0) AS 'persentase',
+                                                  (
+                                                    SELECT COUNT(`id_detail`) FROM `t_jadwal_proyek_detail` 
+                                                    WHERE `proyek_id` = prop.`proyek_id`
+                                                    AND `jenis_proyek_id` = prop.`jenis_proyek`
+                                                  ) AS 'kegiatan'
+                                                  FROM `t_progress_proyek` prop
+                                                  WHERE prop.`proyek_id` = '$proyek'
+                                                  AND prop.`jenis_proyek` = '$jenis'")->row();
+    if ($sqlPersentaseJenisProyek->kegiatan !== "0") {
+      $hitung = $sqlPersentaseJenisProyek->persentase / $sqlPersentaseJenisProyek->kegiatan;
+    } else {
+      $hitung = 0;
+    }
+    $data['jenisproyekstatus'] = (float)$hitung < 100 ? 0 : 1;
+    $data['persentaseJenis'] = $hitung;
     $data['boq'] = $this->db->query("SELECT * FROM t_boq WHERE jenis_proyek='$jenis' AND nama_kegiatan='$proyek' AND is_aktif='1'")->row();
     $data['idproyek'] = json_encode($proyek);
     $data['idjenis'] = json_encode($jenis);
@@ -287,7 +315,7 @@ class ProgressProyek_c extends CI_Controller
                                           AND `proyek_id` = '$proyek'
                                           AND kegiatan_id = '$kegiatan'
                                           AND `validasi` = '1'")->row();
-    $data['kegiatanstatus'] = (int)$persentaseValid->persentase < 100 ? 0 : 1;
+    $data['kegiatanstatus'] = (float)$persentaseValid->persentase < 100 ? 0 : 1;
     $data['idkegiatan'] = $kegiatan;
     $this->load->view('progress/progress_kegiatan_v', $data);
   }

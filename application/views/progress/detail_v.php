@@ -91,7 +91,7 @@ $this->load->view('_partials/header');
                       <?= $a->validasi === 1 ? '<i class="far fa-check-circle fa-lg"></i>' : '' ?>
                     </td>
                     <td><?= number_format(bulatkan($a->boq), 0, ',', '.') ?></td>
-                    <td>0</td>
+                    <td><?= number_format($a->realisasi, 0, ',', '.') ?></td>
                     <td>
                       <a href="<?= base_url('ProgressProyek_c/progresslist/' . $a->id_proyek . '/' . $a->jenis_proyek) ?>" class="btn btn-icon icon-left btn-info" id-pk="$1" id="k_u">
                         <i class="fas fa-sync"></i>
