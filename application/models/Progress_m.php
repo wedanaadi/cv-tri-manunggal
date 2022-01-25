@@ -116,8 +116,14 @@ class Progress_m extends CI_Model
       WHERE `proyek_id`=`jpd`.`proyek_id` 
       AND `kegiatan_id`=`jpd`.`kegiatan_id`
       AND `jenis_proyek` = `jpd`.`jenis_proyek_id`
+      AND `validasi` = '1'
     ) AS persentase,
-    startDate,endDate,durasi,1000 as 'realisasi'");
+    startDate,endDate,durasi,
+    (
+      SELECT IFNULL(SUM(harga_pengeluaran),0)
+      FROM t_pengeluaran_progress
+      WHERE kegiatan_id = `jpd`.kegiatan_id
+    ) AS realisasi");
     $this->datatables->from('t_jadwal_proyek_detail jpd');
     $this->datatables->join('m_data_kegiatan k', 'k.id_master_kegiatan=jpd.kegiatan_id');
     $this->datatables->where('jpd.proyek_id', $p);
@@ -125,12 +131,12 @@ class Progress_m extends CI_Model
     $this->datatables->add_column(
       'gambar',
       '<td>
-        <button class="btn btn-icon icon-left btn-success fotodetil" id-pro="$1" id-jn="$2">
+        <button class="btn btn-icon icon-left btn-success fotodetil" id-k="$1">
           <i class="fas fa-eye"></i>
           Lihat
         </button>
       </td>',
-      'proyek_id,jenis_proyek_id'
+      'kegiatan_id'
     );
     $this->datatables->add_column(
       'view',

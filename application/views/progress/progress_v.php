@@ -276,16 +276,15 @@ $this->load->view('_partials/header');
 
   $(document).on('click', '.fotodetil', function(e) {
     e.preventDefault();
-    var pro = $(this).attr('id-pro');
+    var keg = $(this).attr('id-k');
     $.ajax({
       method: "GET",
       dataType: "JSON",
       data: {
-        idprogress: pro,
+        idkegiatan: keg,
       },
-      url: "<?= base_url() ?>ProgressProyek_c/getFoto",
+      url: "<?= base_url() ?>ProgressProyek_c/getFotoKeg",
       success: function(respon) {
-        console.log(respon);
         $('.modal-body').html("");
         if (respon.status === 'kosong') {
           $('.modal-body').html("<p>Tidak Ada Gambar</p>");

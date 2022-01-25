@@ -280,8 +280,14 @@ class ProgressProyek_c extends CI_Controller
                 AND jpd.`jenis_proyek_id` = '$jenis'";
     $data['data'] = $this->db->query($sqldata)->row();
     $data['boq'] = $this->db->query("SELECT * FROM t_boq WHERE jenis_proyek='$jenis' AND nama_kegiatan='$proyek' AND is_aktif='1'")->row();
-    $data['jenisproyek'] = $this->db->query("SELECT * FROM m_jenis_proyek WHERE id_jenis_proyek='$jenis'")->row();
-    $data['jenisproyekstatus'] = $this->db->query("SELECT * FROM t_progress_proyek WHERE jenis_proyek='$jenis' AND proyek_id='$proyek' AND status='1' AND validasi='1'")->num_rows();
+    // $data['jenisproyek'] = $this->db->query("SELECT * FROM m_jenis_proyek WHERE id_jenis_proyek='$jenis'")->row();
+    // $data['jenisproyekstatus'] = $this->db->query("SELECT * FROM t_progress_proyek WHERE jenis_proyek='$jenis' AND proyek_id='$proyek' AND status='1' AND validasi='1'")->num_rows();
+    $persentaseValid =  $this->db->query("SELECT IFNULL(SUM(`persentase`),0) AS 'persentase' FROM `t_progress_proyek`
+                                          WHERE `jenis_proyek` = '$jenis'
+                                          AND `proyek_id` = '$proyek'
+                                          AND kegiatan_id = '$kegiatan'
+                                          AND `validasi` = '1'")->row();
+    $data['kegiatanstatus'] = (int)$persentaseValid->persentase < 100 ? 0 : 1;
     $data['idkegiatan'] = $kegiatan;
     $this->load->view('progress/progress_kegiatan_v', $data);
   }
@@ -468,6 +474,9 @@ class ProgressProyek_c extends CI_Controller
       $pengeluaran[] = [
         'id_pengeluaran' => uniqid(),
         'progress_id' => $data['id_progress'],
+        'proyek_id' => $this->input->post('proyekid'),
+        'jenis_proyek_id' => $this->input->post('jenisid'),
+        'kegiatan_id' => $this->input->post('kegiatanid'),
         'nama_pengeluaran' => $datapengeluaran[$i][0],
         'harga_pengeluaran' => $datapengeluaran[$i][1],
       ];
@@ -497,6 +506,9 @@ class ProgressProyek_c extends CI_Controller
           $dataPhoto[] = [
             'id' => uniqid(),
             'progress_id' =>  $data['id_progress'],
+            'proyek_id' => $this->input->post('proyekid'),
+            'jenis_proyek_id' => $this->input->post('jenisid'),
+            'kegiatan_id' => $this->input->post('kegiatanid'),
             'photo_name' => $filename
           ];
         }
@@ -547,6 +559,9 @@ class ProgressProyek_c extends CI_Controller
       $pengeluaran[] = [
         'id_pengeluaran' => uniqid(),
         'progress_id' => $data['id_progress'],
+        'proyek_id' => $this->input->post('proyekid'),
+        'jenis_proyek_id' => $this->input->post('jenisid'),
+        'kegiatan_id' => $this->input->post('kegiatanid'),
         'nama_pengeluaran' => $datapengeluaran[$i][0],
         'harga_pengeluaran' => $datapengeluaran[$i][1],
       ];
@@ -576,6 +591,9 @@ class ProgressProyek_c extends CI_Controller
           $dataPhoto[] = [
             'id' => uniqid(),
             'progress_id' =>  $id,
+            'proyek_id' => $this->input->post('proyekid'),
+            'jenis_proyek_id' => $this->input->post('jenisid'),
+            'kegiatan_id' => $this->input->post('kegiatanid'),
             'photo_name' => $filename
           ];
         }
@@ -611,6 +629,19 @@ class ProgressProyek_c extends CI_Controller
     if ($progress->num_rows() > 0) {
       // $id = $progress->row()->id_progress;
       $data['photo'] = $this->db->query("SELECT * FROM t_progress_gambar WHERE progress_id='$pro'")->result();
+      echo json_encode(['status' => 'ada', 'data' => $this->load->view('progress/photo_v', $data, true)]);
+    } else {
+      echo json_encode(['status' => 'kosong']);
+    }
+  }
+
+  public function getFotoKeg()
+  {
+    $pro = $this->input->get('idkegiatan');
+    $progress = $this->db->query("SELECT * FROM `t_progress_gambar` WHERE `kegiatan_id` = '$pro'");
+    if ($progress->num_rows() > 0) {
+      // $id = $progress->row()->id_progress;
+      $data['photo'] = $this->db->query("SELECT * FROM t_progress_gambar WHERE kegiatan_id='$pro'")->result();
       echo json_encode(['status' => 'ada', 'data' => $this->load->view('progress/photo_v', $data, true)]);
     } else {
       echo json_encode(['status' => 'kosong']);

@@ -125,10 +125,10 @@ $this->load->view('_partials/header');
           <hr>
           <div class="row">
             <div class="col text-center">
-              <h4 style="background-color: #D7D7D7; color: #2D2D2D; padding: 10px; font-weight: 900;"><?= $jenisproyek->nama_jenis_proyek ?> <?= $jenisproyekstatus !== 0 ? '<button type="button" class="btn btn-primary btn-icon icon-left"> Proyek Selesai <span class="badge badge-transparent"><i class="far fa-check-circle fa-10x"></i></span></button>' : '' ?></h4>
+              <h4 style="background-color: #D7D7D7; color: #2D2D2D; padding: 10px; font-weight: 900;"><?= $data->nama_kegiatan ?> <?= $kegiatanstatus !== 0 ? '<button type="button" class="btn btn-primary btn-icon icon-left"> Progress Selesai <span class="badge badge-transparent"><i class="far fa-check-circle fa-10x"></i></span></button>' : '' ?></h4>
             </div>
           </div>
-          <?php if ($jenisproyekstatus === 0) : ?>
+          <?php if ($kegiatanstatus === 0) : ?>
             <a href="<?= base_url('ProgressProyek_c/formAdd/' . $data->proyek_id . '/' . $data->jenis_proyek_id . '/' . $idkegiatan) ?>" class="btn btn-icon icon-left btn-primary note-btn" id="pegawai_t">
               <i class="fas fa-plus"></i>
               Tambah
@@ -155,10 +155,14 @@ $this->load->view('_partials/header');
               <tfoot>
                 <tr>
                   <th colspan="3">
-                    <h5>Total Persentase</h5>
+                    <h5>Total Persentase :</h5>
                   </th>
                   <th>0</th>
-                  <th colspan="7">&nbsp;</th>
+                  <th colspan="2">
+                    <h5>Total Pengeluaran :</h5>
+                  </th>
+                  <th>0</th>
+                  <th colspan="4">&nbsp;</th>
                 </tr>
               </tfoot>
             </table>
@@ -386,18 +390,21 @@ $this->load->view('_partials/header');
           }
         })
 
-      // total = api
-      //   .column(3, {
-      //     page: 'current'
-      //   })
-      //   .data()
-      //   .reduce(function(a, b) {
-      //     return intVal(a) + intVal(b);
-      //   }, 0);
+      totalPeng = api
+        .column(6, {
+          page: 'current'
+        })
+        .data()
+        .reduce(function(a, b) {
+          return intVal(a) + intVal(b);
+        }, 0);
 
       var numFormat = $.fn.dataTable.render.number('.', '.', 0, '').display;
       $(api.column(3).footer()).html(
         `<h5>${total}%</h5>`
+      );
+      $(api.column(6).footer()).html(
+        `<h5>${numFormat(totalPeng)}</h5>`
       );
     }
   });
