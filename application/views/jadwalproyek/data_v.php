@@ -63,10 +63,10 @@ $this->load->view('_partials/header');
           </div>
           <div class="modal-footer bg-whitesmoke br">
             <button type="button" class="btn btn-icon icon-left btn-secondary" data-dismiss="modal"><i class="fas fa-times"></i>Tutup</button>
-            <button type="submit" id="submit" class="btn btn-icon icon-left btn-primary">
+            <!-- <button type="submit" id="submit" class="btn btn-icon icon-left btn-primary">
               <i class="fas fa-save"></i>
               Simpan
-            </button>
+            </button> -->
           </div>
         </form>
       </div>

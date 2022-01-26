@@ -74,7 +74,7 @@ $this->load->view('_partials/header');
           <hr>
           <div class="row">
             <div class="col text-center">
-              <h4 style="background-color: #D7D7D7; color: #2D2D2D; padding: 10px; font-weight: 900;"><?= $jenisproyek->nama_jenis_proyek ?> <?= $jenisproyekstatus !== 0 ? '<button type="button" class="btn btn-primary btn-icon icon-left"> Proyek Selesai <span class="badge badge-transparent"><i class="far fa-check-circle fa-10x"></i></span></button>' : '<button type="button" class="btn btn-warning btn-icon icon-left">' . $persentaseJenis . '%</button>' ?></h4>
+              <h4 style="background-color: #D7D7D7; color: #2D2D2D; padding: 10px; font-weight: 900;"><?= $jenisproyek->nama_jenis_proyek ?> <?= $jenisproyekstatus !== 0 ? '<button type="button" class="btn btn-primary btn-icon icon-left"> Proyek Selesai <span class="badge badge-transparent"><i class="far fa-check-circle fa-10x"></i></span></button>' : '<button type="button" class="btn btn-warning btn-icon icon-left">' . round($persentaseJenis, 2) . '%</button>' ?></h4>
             </div>
           </div>
           <hr>
@@ -110,7 +110,7 @@ $this->load->view('_partials/header');
         <div class="card-footer">
           <div class="row">
             <div class="col text-right">
-              <a href="javascript:void(0);" onclick="goBack()" type="button" id="cancel" class="btn btn-icon icon-left btn-light">
+              <a href="<?= base_url('ProgressProyek_c/detail/') . json_decode($idproyek) ?>" type="button" id="cancel" class="btn btn-icon icon-left btn-light">
                 <i class="fas fa-arrow-left"></i>
                 Kembali
               </a> &nbsp;

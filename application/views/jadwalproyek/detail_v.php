@@ -44,7 +44,7 @@
           <td><?= $d->endDate ?></td>
           <td><?= $d->durasi ?> Hari</td>
           <td><?= $d->unit ?></td>
-          <td><?= $d->vol ?></td>
+          <td><?= $d->voltrim ?></td>
           <td class="text-right"><?= number_format($d->harga, 0, ',', '.') ?></td>
           <td class="text-right"><?= number_format($d->total, 0, ',', '.') ?></td>
         </tr>

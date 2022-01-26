@@ -403,7 +403,7 @@ $this->load->view('_partials/header');
     e.preventDefault();
     $('#submit').addClass('disabled btn-progress');
     var form = $(this);
-    if (form[0].checkValidity() === false || t_pengeluaran.rows().count() === 0) {
+    if (form[0].checkValidity() === false) {
       event.stopPropagation();
       if (t_pengeluaran.rows().count() === 0) {
         alert('Tambah Pengeluaran!');

@@ -97,25 +97,25 @@ $this->load->view('_partials/header');
               <div class="form-group row" style="margin-bottom:0px">
                 <label class="col-xs-12 col-md-4 col-lg-4 col-form-label">Jenis Proyek</label>
                 <div class="col-xs-12 col-md-8 col-lg-8 col-form-label">
-                  <?= $progress->nama_jenis_proyek ?>
+                  <?= $progress->nama_jenis_proyek ?> <span class="font-weight-bold">( <?= "Kegiatan : " . $progress->nama_kegiatan ?> )</span>
                 </div>
               </div>
               <div class="form-group row" style="margin-bottom:0px">
                 <label class="col-xs-12 col-md-4 col-lg-4 col-form-label">Volume Proyek</label>
                 <div class="col-xs-12 col-md-8 col-lg-8 col-form-label">
-                  <?= $progress->vol ?>
+                  <?= $progress->volorder ?> x <?= $progress->volkegiatan ?> = <?= $progress->voljadwal ?>
                 </div>
               </div>
               <div class="form-group row" style="margin-bottom:0px">
                 <label class="col-xs-12 col-md-4 col-lg-4 col-form-label">Kepala Proyek</label>
                 <div class="col-xs-12 col-md-8 col-lg-8 col-form-label">
-                  <?= $progress->nama_user ?>
+                  <?= $progress->kapro ?>
                 </div>
               </div>
               <div class="form-group row" style="margin-bottom:0px">
-                <label class="col-xs-12 col-md-4 col-lg-4 col-form-label">Lokasi Proyek</label>
+                <label class="col-xs-12 col-md-4 col-lg-4 col-form-label">Pengeluaran</label>
                 <div class="col-xs-12 col-md-8 col-lg-8 col-form-label">
-                  <?= $progress->lokasi ?>
+                  <?= number_format($progress->pengeluaran, 0, ',', '.') ?>
                 </div>
               </div>
               <div class="form-group row" style="margin-bottom:0px">
@@ -179,7 +179,7 @@ $this->load->view('_partials/header');
             <div class="card-footer">
               <div class="row">
                 <div class="col text-right">
-                  <a href="javascript:void(0);" onclick="goBack()" type="button" id="cancel" class="btn btn-icon icon-left btn-light">
+                  <a href="<?= base_url('ProgressProyek_c/updateKegiatan/') . $progress->proyek_id . '/' . $progress->jenis_proyek . '/' . $progress->kegiatan_id ?>" onclick="goBack()" type="button" id="cancel" class="btn btn-icon icon-left btn-light">
                     <i class="fas fa-arrow-left"></i>
                     Kembali
                   </a> &nbsp;

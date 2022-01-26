@@ -223,19 +223,19 @@ class JadwalProyek_c extends CI_Controller
   public function detail()
   {
     $id = $this->input->get('id');
-    $sql = "SELECT jpd.*, jp.`nama_jenis_proyek`, p.`nama_pegawai`, k.`nama_kegiatan`,
+    $sql = "SELECT `nama_jenis_proyek`,
             (
-              SELECT COUNT(`jenis_proyek_id`) 
-              FROM `t_jadwal_proyek_detail` 
-              WHERE `jenis_proyek_id` = jpd.`jenis_proyek_id`
+              SELECT COUNT(`id_detail`) FROM `t_jadwal_proyek_detail` pd
+              WHERE pd.`jadwal_id` = '61e8c4a755479' AND pd.`jenis_proyek_id` = tpd.`jenis_proyek_id`
+              GROUP BY pd.`jenis_proyek_id`
             ) AS 'rowspan',
-            TRIM(`jpd`.`vol`)+0 AS 'vol'
-            FROM `t_jadwal_proyek_detail` jpd
-            INNER JOIN `m_jenis_proyek` jp ON jp.`id_jenis_proyek` =jpd.`jenis_proyek_id`
-            INNER JOIN `m_pegawai` p ON p.`id_pegawai` = jpd.`pegawai_id`
-            INNER JOIN `m_data_kegiatan` k ON k.`id_master_kegiatan` = jpd.`kegiatan_id`
-            WHERE `jadwal_id` = '$id'
-            ORDER BY jpd.`jenis_proyek_id` ASC, jpd.`kegiatan_id` ASC";
+            k.`nama_kegiatan`, p.`nama_pegawai`, tpd.*, TRIM(`tpd`.`vol`)+0 AS 'voltrim'
+            FROM `t_jadwal_proyek_detail` tpd
+            INNER JOIN `m_jenis_proyek` jn ON `jn`.`id_jenis_proyek` = `tpd`.`jenis_proyek_id`
+            INNER JOIN `m_data_kegiatan` k ON k.`id_master_kegiatan` = tpd.`kegiatan_id`
+            INNER JOIN `m_pegawai` p ON p.`id_pegawai` = tpd.`pegawai_id`
+            WHERE `tpd`.`jadwal_id` = '$id'
+            ORDER BY `jenis_proyek_id`, `kegiatan_id`";
     $data['detail'] = $this->db->query($sql)->result();
     echo json_encode(['view' => $this->load->view('jadwalproyek/detail_v', $data, true)]);
   }
