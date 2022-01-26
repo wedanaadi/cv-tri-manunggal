@@ -115,28 +115,34 @@ $this->load->view('_partials/header');
           var pgno = 1;
           var tbody = '';
 
-          let tabeldetil = '<table id="data-' + data.nama_kegiatan + '" class="table table-bordered" style="width:100%">' +
-            '<thead>' +
-            '<tr>' +
-            '<th style="width: 5%" class="text-center">NO</th>' +
-            '<th class="text-center">Kegiatan</th>' +
-            '<th class="text-center">Pekerjaan</th>' +
-            '<th class="text-center">Lokasi</th>' +
-            '<th class="text-center">Tahun Anggaran</th>' +
-            '<th class="text-center">Action</th>' +
-            '<th class="text-center" style="display:none">id</th>' +
-            '</tr>' +
-            '</thead><tbody>';
+          let tabeldetil = /*html*/
+            `<table id="data-${data.nama_kegiatan}" class="table table-bordered" style="width:100%">
+              <thead>
+                <tr>
+                  <th class="text-center" style="width: 5%">No</th>
+                  <th class="text-center">Kegiatan</th>
+                  <th class="text-center">Pekerjaan</th>
+                  <th class="text-center">Lokasi</th>
+                  <th class="text-center">Tahun Ajaran</th>
+                  <th class="text-center">Action</th>
+                  <th class="text-center" style="display:none">id</th>
+                </tr>
+              </thead>
+            <tbody>`;
           $.each(respon, function(index, value) {
-            tbody += '<tr>' +
-              '<td class="details-control"></td>' +
-              '<td style="vertical-align: middle;">' + value.nama_kegiatan + '</td>' +
-              '<td style="vertical-align: middle;">' + value.nama_proyek_pekerjaan + '</td>' +
-              '<td style="vertical-align: middle;">' + value.lokasi + '</td>' +
-              '<td style="vertical-align: middle; text-align:center;">' + value.tahun_anggaran + '</td>' +
-              '<td style="vertical-align: middle;"><a href="<?= base_url() ?>Boq_c/rekap/' + value.id_proyek + '" target="_blank" class="btn btn-primary"><i class="fas fa-print"></i> Rekaptulasi</a></td>' +
-              '<td style="display:none">' + value.id_proyek + '</td>' +
-              '</tr>';
+            tbody += /*html*/
+              `<tr>
+                <td class="details-control"></td>
+                <td style="vertical-align: middle;">${value.nama_kegiatan}</td>
+                <td style="vertical-align: middle;">${value.nama_proyek_pekerjaan}</td>
+                <td style="vertical-align: middle;">${value.lokasi}</td>
+                <td style="vertical-align: middle; text-align:center;">${value.tahun_anggaran}</td>
+                <td style="vertical-align: middle;">
+                  <a href="<?= base_url() ?>Boq_c/rekap/${value.id_proyek}" target="_blank" class="btn btn-primary"><i class="fas fa-print"></i> Rekaptulasi</a>
+                  <a href="<?= base_url() ?>Boq_c/realisasi/${value.id_proyek}" target="_blank" class="btn btn-danger"><i class="fas fa-print"></i> Realisasi</a>
+                </td>
+                <td style="display:none">${value.id_proyek}</td>
+              </tr>`;
           });
           let tfoot = '</tbody></table>';
           rowx.child(tabeldetil + tbody + tfoot).show();

@@ -152,11 +152,13 @@ class ProgressProyek_c extends CI_Controller
       $data['array'] = $this->db->query($sqlarray)->result();
     }
     $sql = "SELECT pp.`id_progress`, op.`nama_konsumen`, op.`no_surat_kontrak`, jn.`nama_jenis_proyek`, 
-            pp.`persentase`, pp.`validasi`, opd.`order_proyek_id`,opd.`jenis_proyek`
+            pp.`persentase`, pp.`validasi`, opd.`order_proyek_id`,opd.`jenis_proyek`, k.`nama_kegiatan`,
+            pp.`kegiatan_id`
             FROM `t_progress_proyek` pp
             INNER JOIN `t_order_proyek` op ON op.`id_proyek` = pp.`proyek_id`
             INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
             INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = pp.`jenis_proyek`
+            INNER JOIN `m_data_kegiatan` k ON k.`id_master_kegiatan` = pp.`kegiatan_id`
             WHERE pp.`validasi` IN('1','2') AND op.`status` = '0' AND opd.`kepala_proyek` = '$kepalaproyek'
             GROUP BY pp.`id_progress`
             ORDER BY pp.`id_progress` ASC, pp.`tanggal` DESC";
@@ -621,16 +623,18 @@ class ProgressProyek_c extends CI_Controller
       // 'progress' => $this->input->post('progresscount'),
     ];
     $datapengeluaran = json_decode($this->input->post('pengeluaran'));
-    for ($i = 0; $i < count($datapengeluaran); $i++) {
-      $pengeluaran[] = [
-        'id_pengeluaran' => uniqid(),
-        'progress_id' => $data['id_progress'],
-        'proyek_id' => $this->input->post('proyekid'),
-        'jenis_proyek_id' => $this->input->post('jenisid'),
-        'kegiatan_id' => $this->input->post('kegiatanid'),
-        'nama_pengeluaran' => $datapengeluaran[$i][0],
-        'harga_pengeluaran' => $datapengeluaran[$i][1],
-      ];
+    if (count($datapengeluaran) > 0) {
+      for ($i = 0; $i < count($datapengeluaran); $i++) {
+        $pengeluaran[] = [
+          'id_pengeluaran' => uniqid(),
+          'progress_id' => $data['id_progress'],
+          'proyek_id' => $this->input->post('proyekid'),
+          'jenis_proyek_id' => $this->input->post('jenisid'),
+          'kegiatan_id' => $this->input->post('kegiatanid'),
+          'nama_pengeluaran' => $datapengeluaran[$i][0],
+          'harga_pengeluaran' => $datapengeluaran[$i][1],
+        ];
+      }
     }
 
     $dataPhoto = [];
@@ -669,13 +673,17 @@ class ProgressProyek_c extends CI_Controller
     $this->db->where('id_progress', $id);
     $this->db->update('t_progress_proyek', $data);
 
-    $this->db->where('progress_id', $id);
-    $this->db->delete('t_pengeluaran_progress');
 
     $this->db->where('id_proyek', $this->input->post('proyekid'));
     $this->db->update('t_order_proyek', ['status' => 0]);
 
-    $this->db->insert_batch('t_pengeluaran_progress', $pengeluaran);
+    if (count($datapengeluaran) > 0) {
+      $this->db->where('progress_id', $id);
+      $this->db->delete('t_pengeluaran_progress');
+
+      $this->db->insert_batch('t_pengeluaran_progress', $pengeluaran);
+    }
+
     if (count($dataPhoto) > 0) {
       $this->db->insert_batch('t_progress_gambar', $dataPhoto);
     }
@@ -827,11 +835,13 @@ class ProgressProyek_c extends CI_Controller
     $data['progress'] = $this->db->query($sql)->row();
     $data['photo'] = $this->db->query("SELECT * FROM t_progress_gambar WHERE progress_id='$id'")->result();
     $sql = "SELECT pp.`id_progress`, op.`nama_konsumen`, op.`no_surat_kontrak`, jn.`nama_jenis_proyek`, 
-            pp.`persentase`, pp.`validasi`, opd.`order_proyek_id`,opd.`jenis_proyek`
+            pp.`persentase`, pp.`validasi`, opd.`order_proyek_id`,opd.`jenis_proyek`, k.`nama_kegiatan`,
+            pp.`kegiatan_id`
             FROM `t_progress_proyek` pp
             INNER JOIN `t_order_proyek` op ON op.`id_proyek` = pp.`proyek_id`
             INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
             INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = pp.`jenis_proyek`
+            INNER JOIN `m_data_kegiatan` k ON k.`id_master_kegiatan` = pp.`kegiatan_id`
             WHERE pp.`validasi` = '0'
             GROUP BY pp.`id_progress`
             ORDER BY pp.`id_progress` ASC, pp.`tanggal` DESC";
