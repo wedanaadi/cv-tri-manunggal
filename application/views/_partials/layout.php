@@ -96,7 +96,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                       <div class="dropdown-item-desc">
                         <?= $n->nama_konsumen . ' | ' . $n->no_surat_kontrak . " (" . $n->persentase . "%)" ?>
                         <!-- Robert Taufan Nur Rahman, ST, M.Si. | 003/VI/BPL/2021 (15%) -->
-                        <div class="time text-primary"><?= $n->nama_jenis_proyek ?></div>
+                        <div class="time text-primary"><?= $n->nama_jenis_proyek . ' | ' . $n->nama_kegiatan ?></div>
                       </div>
                     </a>
                   <?php endforeach; ?>
@@ -121,14 +121,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     <span style="padding: 15px">Tidak Ada Notifikasi</span>
                   <?php endif; ?>
                   <?php foreach ($this->session->userdata('notif') as $n) : ?>
-                    <a href="<?= base_url('ProgressProyek_c/progresslist/' . $n->order_proyek_id . '/' . $n->jenis_proyek) ?>" class="dropdown-item dropdown-item-unread">
+                    <a href="<?= base_url('ProgressProyek_c/formUbah/' . $n->id_progress) ?>" class="dropdown-item dropdown-item-unread">
                       <!-- <div class="dropdown-item-icon bg-success text-white">
                         <i class="fas fa-exclamation-triangle"></i>
                       </div> -->
                       <div class="dropdown-item-desc">
                         <?= $n->nama_konsumen . ' | ' . $n->no_surat_kontrak . " (" . $n->persentase . "%)" ?>
                         <!-- Robert Taufan Nur Rahman, ST, M.Si. | 003/VI/BPL/2021 (15%) -->
-                        <div class="time text-primary"><?= $n->nama_jenis_proyek . ' | ' ?><?= $n->validasi === '2' ? 'ditolak' : 'diterima' ?></div>
+                        <div class="time text-primary"><?= $n->nama_jenis_proyek . ' | ' . $n->nama_kegiatan . ' | ' ?><?= $n->validasi === '2' ? '<span class="text-danger">ditolak</span>' : '<span class="text-warning">diterima</span>' ?></div>
                       </div>
                     </a>
                   <?php endforeach; ?>

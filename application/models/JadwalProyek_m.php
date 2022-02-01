@@ -2,6 +2,7 @@
 class JadwalProyek_m extends CI_Model
 {
   private $tabel = "t_jadwal_proyek";
+  private $detail = "t_jadwal_proyek_detail";
 
   function getAll()
   {
@@ -18,28 +19,40 @@ class JadwalProyek_m extends CI_Model
     $this->datatables->from($this->tabel);
     $this->datatables->add_column(
       'view',
-      '<button class="btn btn-icon icon-left btn-warning" id-pk="$1" id="jp_u">
-                                                    <i class="fas fa-edit"></i>
-                                                    Ubah
-                                                </button>
-                                                <button class="btn btn-icon icon-left btn-danger" id-pk="$1" id="jp_d">
-                                                    <i class="fas fa-trash"></i>
-                                                    Hapus
-                                                </button>',
+      '<button class="btn btn-icon icon-left btn-success" id-pk="$1" id="jp_detail">
+          <i class="fas fa-eye"></i>
+          Detail
+      </button>
+      <a href="' . base_url() . 'JadwalProyek_c/changeForm/$1" class="btn btn-icon icon-left btn-warning" id-pk="$1">
+          <i class="fas fa-edit"></i>
+          Ubah
+      </a>
+      <button class="btn btn-icon icon-left btn-danger" id-pk="$1" id="jp_d">
+          <i class="fas fa-trash"></i>
+          Hapus
+      </button>',
       'id_jadwal'
     );
     return $this->datatables->generate();
   }
 
-  function insertDB($data)
+  function insertDB($data, $detail)
   {
+    $this->db->trans_start();
     $this->db->insert($this->tabel, $data);
+    $this->db->insert_batch($this->detail, $detail);
+    $this->db->trans_complete();
   }
 
-  function updateDB($data, $id)
+  function updateDB($data, $id, $detail)
   {
+    $this->db->trans_start();
+    $this->db->where('jadwal_id', $id);
+    $this->db->delete($this->detail);
     $this->db->where('id_jadwal', $id);
     $this->db->update($this->tabel, $data);
+    $this->db->insert_batch($this->detail, $detail);
+    $this->db->trans_complete();
   }
 
   function getBy($param, $id)

@@ -142,14 +142,38 @@ class Dashboard_c extends CI_Controller
             $lanjut
             ORDER BY `nama_konsumen` ASC, `nama_kegiatan` ASC";
     $dataproyek = $this->db->query($sql)->result();
+    $isAda = false;
     foreach ($dataproyek as $p) {
       $sqlboq = "SELECT * FROM t_boq WHERE nama_kegiatan='$p->id_proyek' AND jenis_proyek='$p->jenis_proyek' AND is_aktif='1'";
+      $sqljadwal = "SELECT * FROM t_jadwal_proyek WHERE proyek_id='$p->id_proyek' AND is_aktif='1'";
       $boq = $this->db->query($sqlboq);
-      if ($boq->num_rows() > 0) {
-        $sqlProgress = "SELECT proyek_id, MAX(persentase) AS 'p', jenis_proyek, status
-                        FROM `t_progress_proyek` 
-                        WHERE `validasi` = '1' AND proyek_id='$p->id_proyek' AND jenis_proyek='$p->jenis_proyek'
-                        HAVING MAX(persentase) is not null";
+      $jadwal = $this->db->query($sqljadwal);
+      $sqlrealisasi = "SELECT SUM(`harga_pengeluaran`) AS 'harga' FROM `t_pengeluaran_progress` tpp
+                      INNER JOIN `t_progress_proyek` pp ON pp.`id_progress` = tpp.`progress_id`
+                      WHERE pp.`validasi` = '1' 
+                      AND tpp.`proyek_id`='$p->id_proyek' 
+                      AND tpp.`jenis_proyek_id`='$p->jenis_proyek'";
+      $realisasi = $this->db->query($sqlrealisasi)->row();
+      if ($boq->num_rows() > 0 && $jadwal->num_rows() > 0) {
+        $isAda = true;
+        $sqlProgress = "SELECT prop.`jenis_proyek`,prop.`status`,
+                        (
+                          SELECT IFNULL(SUM(persentase),0)
+                          FROM `t_progress_proyek` prosub
+                          WHERE prosub.`validasi` = '1'
+                          AND prosub.`proyek_id` = prop.`proyek_id`
+                          AND prosub.`jenis_proyek` = prop.`jenis_proyek`
+                        ) AS 'p',
+                        (
+                                                  SELECT COUNT(id_detail) FROM `t_jadwal_proyek_detail` jprod
+                                                  WHERE jprod.`proyek_id` = prop.`proyek_id`
+                                                  AND jprod.`jenis_proyek_id` = prop.`jenis_proyek`
+                                                ) AS 'k'
+                        FROM `t_progress_proyek` prop
+                        WHERE prop.`validasi` = '1' 
+                        AND prop.`proyek_id`='$p->id_proyek' 
+                        AND prop.`jenis_proyek`='$p->jenis_proyek' 
+                        GROUP BY prop.`jenis_proyek`";
         $proyekprogress = $this->db->query("$sqlProgress");
         if ($proyekprogress->num_rows() > 0) {
           $array[] =  (object)[
@@ -159,8 +183,9 @@ class Dashboard_c extends CI_Controller
             'jenis' => $p->nama_jenis_proyek,
             'kepro' => $p->nama_user,
             'harga' => bulatkan($boq->row()->total),
-            'persentase' => $proyekprogress->row()->p,
+            'persentase' => round((float)$proyekprogress->row()->p / (float)$proyekprogress->row()->k, 2),
             'status' => $proyekprogress->row()->status,
+            'realisasi' => $realisasi->harga
           ];
         } else {
           $array[] =  (object)[
@@ -171,49 +196,61 @@ class Dashboard_c extends CI_Controller
             'kepro' => $p->nama_user,
             'harga' => bulatkan($boq->row()->total),
             'persentase' => "0",
-            'status' => "0"
+            'status' => "0",
+            'realisasi' => $realisasi->harga
           ];
         }
       }
     }
-    return $array;
+    if ($isAda) {
+      return $array;
+    } else {
+      return [];
+    }
   }
 
   public function grafikbaru($id = 'kosong')
   {
     $detil = $this->tabeldetil($id);
-    $idproyek = '';
-    $array = [];
-    $SUMpersentase = 0;
-    $bagi = 0;
-    $jumlahPALL = 0;
-    foreach ($detil as $d) {
-      $countP2 = 0;
-      if ($idproyek !== $d->idproyek) {
-        $SUMpersentase = 0;
-        $idproyek = $d->idproyek;
-        foreach ($detil as $v) {
-          if ($idproyek === $v->idproyek) {
-            $countP2++;
+    if (count($detil) > 0) {
+      $idproyek = '';
+      $array = [];
+      $SUMpersentase = 0;
+      $bagi = 0;
+      $jumlahPALL = 0;
+      foreach ($detil as $d) {
+        $countP2 = 0;
+        if ($idproyek !== $d->idproyek) {
+          $SUMpersentase = 0;
+          $idproyek = $d->idproyek;
+          foreach ($detil as $v) {
+            if ($idproyek === $v->idproyek) {
+              $countP2++;
+            }
           }
+          $bagi = $countP2;
         }
-        $bagi = $countP2;
+        $SUMpersentase += $d->persentase;
+        $array[$idproyek] = (object)['p' => $SUMpersentase, 'b' => $bagi];
       }
-      $SUMpersentase += $d->persentase;
-      $array[$idproyek] = (object)['p' => $SUMpersentase, 'b' => $bagi];
-    }
 
 
-    $total = 0;
-    foreach ($array as $a) {
-      if ($a->p !== 0) {
-        $total += $a->p / $a->b;
+      $total = 0;
+      foreach ($array as $a) {
+        if ($a->p !== 0) {
+          $total += $a->p / $a->b;
+        }
       }
+      $data['total'] = $total;
+      $data['chart'] = round($total / count($array), 2);
+      $data['proyek'] = count($array);
+      $data['jn'] = count($detil);
+    } else {
+      $data['total'] = 0;
+      $data['chart'] = round(0, 2);
+      $data['proyek'] = 0;
+      $data['jn'] = 0;
     }
-    $data['total'] = $total;
-    $data['chart'] = round($total / count($array), 2);
-    $data['proyek'] = count($array);
-    $data['jn'] = count($detil);
     return $data;
   }
 
@@ -221,16 +258,18 @@ class Dashboard_c extends CI_Controller
   {
     if ($this->session->userdata('hakakses') === '2') {
       $kepalaproyek = $this->session->userdata('kodeuser');
-      $where = "WHERE pp.`validasi` IN('1','2') AND op.`status` = '0' AND opd.`kepala_proyek` = '$kepalaproyek'";
+      $where = "WHERE pp.`validasi` IN('1','2') AND op.`status` = '0' AND pp.`kepala_proyek` = '$kepalaproyek'";
     } else {
       $where = "WHERE pp.`validasi` = '0'";
     }
     $sql = "SELECT pp.`id_progress`, op.`nama_konsumen`, op.`no_surat_kontrak`, jn.`nama_jenis_proyek`, 
-            pp.`persentase`, pp.`validasi`, opd.`order_proyek_id`,opd.`jenis_proyek`
+            pp.`persentase`, pp.`validasi`, opd.`order_proyek_id`,opd.`jenis_proyek`, k.`nama_kegiatan`,
+            pp.`kegiatan_id`
             FROM `t_progress_proyek` pp
             INNER JOIN `t_order_proyek` op ON op.`id_proyek` = pp.`proyek_id`
             INNER JOIN `t_order_proyek_detail` opd ON opd.`order_proyek_id` = op.`id_proyek`
             INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = pp.`jenis_proyek`
+            INNER JOIN `m_data_kegiatan` k ON k.`id_master_kegiatan` = pp.`kegiatan_id`
             $where
             GROUP BY pp.`id_progress`
             ORDER BY pp.`id_progress` ASC, pp.`tanggal` DESC";

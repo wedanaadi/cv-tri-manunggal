@@ -170,16 +170,33 @@ class Boq_c extends CI_Controller
 
   public function getBoqLap($id)
   {
-    $sql = "SELECT op.`nama_kegiatan` as kegiatan, op.`nama_proyek_pekerjaan` as pekerjaan, jn.`nama_jenis_proyek`, op.`tahun_anggaran`, b.* 
+    $sql = "SELECT op.`nama_kegiatan` as kegiatan, op.`nama_proyek_pekerjaan` as pekerjaan, jn.`nama_jenis_proyek`, op.`tahun_anggaran`, b.*,
+                (
+              SELECT IFNULL(SUM(`harga_pengeluaran`),0) FROM `t_pengeluaran_progress` penpro
+              INNER JOIN `t_progress_proyek` progp ON progp.`id_progress` = penpro.`progress_id`
+              WHERE penpro.`proyek_id` = b.`nama_kegiatan`
+              AND penpro.`jenis_proyek_id` = b.`jenis_proyek`
+              AND progp.`validasi` = '1'
+            ) AS 'realisasi' 
             FROM `t_boq` b
             INNER JOIN `t_order_proyek` op ON op.`id_proyek` = b.`nama_kegiatan`
             INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = b.`jenis_proyek`
             WHERE `id_boq` = '$id'";
     $data['atas'] = $this->db->query($sql)->row();
-    $this->db->select('m_jenis_proyek_detail.*, dk.nama_kegiatan');
-    $this->db->where('jenis_proyek_id', $data['atas']->jenis_proyek);
-    $this->db->join('m_data_kegiatan dk', 'dk.id_master_kegiatan=m_jenis_proyek_detail.kegiatan_id');
-    $data['jn'] = $this->db->get('m_jenis_proyek_detail')->result();
+    $sqlkegiatan = "SELECT k.`nama_kegiatan`,jnd.*,
+                    (
+                      SELECT IFNULL(SUM(tpp.`total_pengeluaran`),0) FROM `t_pengeluaran_progress` tpp
+                      INNER JOIN `t_progress_proyek` prp ON prp.`id_progress` = tpp.`progress_id`
+                      WHERE tpp.`proyek_id` = b.`nama_kegiatan`
+                      AND tpp.`jenis_proyek_id` = b.`jenis_proyek`
+                      AND tpp.`kegiatan_id` = jnd.`kegiatan_id`
+                      AND prp.`validasi` = '1'
+                    ) AS 'realisasi'
+                    FROM `t_boq` b
+                    INNER JOIN `m_jenis_proyek_detail` jnd ON jnd.`jenis_proyek_id` = b.`jenis_proyek`
+                    INNER JOIN `m_data_kegiatan` k ON k.`id_master_kegiatan` = jnd.`kegiatan_id`
+                    WHERE `id_boq` = '$id' AND b.`is_aktif` = '1'";
+    $data['jn'] = $this->db->query($sqlkegiatan)->result();
     $data['direktur'] = $this->db->query('SELECT * FROM m_user WHERE hak_akses="3"')->row()->nama_user;
     return $data;
   }
@@ -194,7 +211,14 @@ class Boq_c extends CI_Controller
 
   public function getRekapLap($id)
   {
-    $sql = "SELECT op.`nama_kegiatan` as kegiatan, op.`nama_proyek_pekerjaan` as pekerjaan, jn.`nama_jenis_proyek`, op.`tahun_anggaran`, op.`lokasi`, b.* 
+    $sql = "SELECT op.`nama_kegiatan` as kegiatan, op.`nama_proyek_pekerjaan` as pekerjaan, jn.`nama_jenis_proyek`, op.`tahun_anggaran`, op.`lokasi`, b.*, 
+            (
+              SELECT IFNULL(SUM(`total_pengeluaran`),0) FROM `t_pengeluaran_progress` tpp
+              INNER JOIN `t_progress_proyek` prp ON prp.`id_progress` = tpp.`progress_id`
+              WHERE tpp.`proyek_id` = b.`nama_kegiatan`
+              AND tpp.`jenis_proyek_id` = b.`jenis_proyek`
+              AND prp.`validasi` = '1'
+            ) AS 'realisasi'
             FROM `t_boq` b
             INNER JOIN `t_order_proyek` op ON op.`id_proyek` = b.`nama_kegiatan`
             INNER JOIN `m_jenis_proyek` jn ON jn.`id_jenis_proyek` = b.`jenis_proyek`
@@ -205,7 +229,7 @@ class Boq_c extends CI_Controller
     $this->db->where('b.is_aktif', 1);
     $this->db->join('m_jenis_proyek jn', 'jn.id_jenis_proyek=b.jenis_proyek');
     $this->db->from('t_boq b');
-    $data['detil'] = $this->db->get()->result();
+    $data['detil'] = $this->db->query($sql)->result();
     $data['direktur'] = $this->db->query('SELECT * FROM m_user WHERE hak_akses="3"')->row()->nama_user;
     return $data;
   }
@@ -216,5 +240,13 @@ class Boq_c extends CI_Controller
     $data['lap'] = $this->getRekapLap($idproyek);
     $html = $this->load->view('boq/cetak_rekap_v', $data, TRUE);
     $this->create_pdf->load($html, "Rekaptulasi-" . $data['lap']['atas']->kegiatan, 'A4-P');
+  }
+
+  public function realisasi($idproyek)
+  {
+    $data['header'] = $this->cetakHeader();
+    $data['lap'] = $this->getRekapLap($idproyek);
+    $html = $this->load->view('boq/cetak_realisasi_v', $data, TRUE);
+    $this->create_pdf->load($html, "Realisasi-" . $data['lap']['atas']->kegiatan, 'A4-L');
   }
 }

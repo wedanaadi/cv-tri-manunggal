@@ -18,7 +18,7 @@
     border: 0;
   }
 </style>
-<h4 style="text-align:center">REKAPTULASI<br>DAFTAR KUANTITAS DAN HARGA</h4>
+<h4 style="text-align:center">REALISASI<br>DAFTAR KUANTITAS DAN HARGA</h4>
 <table style="width:100%">
   <tr>
     <td>Kegiatan</td>
@@ -45,13 +45,16 @@
       <th style="border: 1px solid">Nama Kegiatan</th>
       <th style="border: 1px solid">Satuan</th>
       <th style="border: 1px solid">Volume</th>
-      <th style="border: 1px solid">Harga Satuan (Rp)</th>
-      <th style="border: 1px solid">Jumlah (Rp)</th>
+      <th style="border: 1px solid">Harga Satuan BOQ (Rp)</th>
+      <th style="border: 1px solid">Jumlah BOQ (Rp)</th>
+      <th style="border: 1px solid">Harga Satuan Realisasi (Rp)</th>
+      <th style="border: 1px solid">Jumlah Realisasi (Rp)</th>
     </tr>
   </thead>
   <tbody>
     <?php $no = 1;
     $total = 0;
+    $realisasi = 0;
     foreach ($lap['detil'] as $v) : ?>
       <tr>
         <td style="border: 1px solid"><?= $no ?></td>
@@ -59,14 +62,18 @@
         <td style="border: 1px solid; text-align:center;"><?= $v->satuan ?></td>
         <td style="border: 1px solid; text-align:center;"><?= $v->volume ?></td>
         <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->total_harga_satuan), 0, ',', '.') ?></td>
-        <td style="border: 1px solid; text-align:right;"><?= number_format($v->volume * bulatkan($v->total_harga_satuan), 0, ',', '.') ?></td>
+        <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->volume * bulatkan($v->total_harga_satuan)), 0, ',', '.') ?></td>
+        <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->realisasi) / $v->volume, 0, ',', '.') ?></td>
+        <td style="border: 1px solid; text-align:right;"><?= number_format($v->volume * (bulatkan($v->realisasi) / $v->volume), 0, ',', '.') ?></td>
       </tr>
     <?php $no++;
-      $total += (float)($v->volume * bulatkan($v->total_harga_satuan));
+      $total += $v->volume * (float)$v->total_harga_satuan;
+      $realisasi += $v->volume * (float)$v->realisasi / $v->volume;
     endforeach; ?>
     <tr>
-      <td colspan="5" style="text-align: center; border: 1px solid;"><strong>TOTAL</strong></td>
+      <td colspan="6" style="text-align: center; border: 1px solid;"><strong>TOTAL</strong></td>
       <td style="text-align: right; border: 1px solid"><strong><?= number_format(bulatkan($total), 0, ',', '.') ?></strong></td>
+      <td style="text-align: right; border: 1px solid"><strong><?= number_format(bulatkan($realisasi), 0, ',', '.') ?></strong></td>
     </tr>
     <!-- <tr>
       <td colspan="5" style="text-align: center; border: 1px solid;"><strong>TOTAL SESUDAH PEMBULATAN</strong></td>
@@ -75,7 +82,12 @@
     <tr>
       <td style="border-left: 1px solid; border-bottom: 1px solid;" colspan="1"></td>
       <!-- <td style="border-left: 1px solid; border-bottom: 1px solid;" colspan="1"><strong>Terbilang : </strong></td> -->
-      <td style="border-right: 1px solid; border-bottom: 1px solid;" colspan="5"><strong>Terbilang : # <?= terbilang(bulatkan($total)) ?> Rupiah #</strong></td>
+      <td style="border-right: 1px solid; border-bottom: 1px solid;" colspan="7"><strong>Terbilang BOQ : # <?= terbilang(bulatkan($total)) ?> Rupiah #</strong></td>
+    </tr>
+    <tr>
+      <td style="border-left: 1px solid; border-bottom: 1px solid;" colspan="1"></td>
+      <!-- <td style="border-left: 1px solid; border-bottom: 1px solid;" colspan="1"><strong>Terbilang : </strong></td> -->
+      <td style="border-right: 1px solid; border-bottom: 1px solid;" colspan="7"><strong>Terbilang Realisasi : # <?= terbilang(bulatkan($realisasi)) ?> Rupiah #</strong></td>
     </tr>
   </tbody>
 </table>

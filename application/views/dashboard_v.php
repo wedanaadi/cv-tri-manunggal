@@ -109,6 +109,7 @@ $this->load->view('_partials/header');
                       $kon2 = '';
                       $sumPersentase = 0;
                       $sumHarga = 0;
+                      $sumRealisasi = 0;
                       $banyakJNPro = 0;
                       $arrper = [];
                       $fixpersen = 0;
@@ -134,6 +135,7 @@ $this->load->view('_partials/header');
                               <th class="text-center" style="background-color: #8EAADB; color:black"><?= $fixpersen ?>%</th>
                               <th class="text-center">Total Harga</th>
                               <th class="text-center" style="background-color: #FFC000; color:black"><?= number_format($sumHarga, '0', ',', '.') ?></th>
+                              <th class="text-center" style="background-color: #23D200; color:black"><?= number_format($sumRealisasi, '0', ',', '.') ?></th>
                             </tr>
                             <tr class="noBorder">
                               <td colspan="8">&nbsp;</td>
@@ -150,6 +152,7 @@ $this->load->view('_partials/header');
                             <th>Persentase</th>
                             <th>Status Proyek</th>
                             <th>Harga (Rp)</th>
+                            <th>Realisasi (Rp)</th>
                           </tr>
                         <?php endif; ?>
                         <?php
@@ -173,6 +176,7 @@ $this->load->view('_partials/header');
                             <?php
                             if ($konsumen !== $t->konsumen) :
                               $sumHarga = 0;
+                              $sumRealisasi = 0;
                             ?>
                               <td class="text-center" rowspan="<?= $countK2 ?>"><?= $no ?></td>
                               <td rowspan="<?= $countK2 ?>"><?= $t->konsumen ?></td>
@@ -188,6 +192,7 @@ $this->load->view('_partials/header');
                             <td class="text-center"><?= $t->persentase ?>%</td>
                             <td class="text-center"><?= $t->status === '0'  ? 'Proyek Berjalan' : 'Proyek Selesai' ?></td>
                             <td class="text-center"><?= number_format($t->harga, 0, ',', '.') ?></td>
+                            <td class="text-center"><?= number_format($t->realisasi, 0, ',', '.') ?></td>
                           </tr>
                         <?php else : ?>
                           <tr>
@@ -198,6 +203,7 @@ $this->load->view('_partials/header');
                             <td class="text-center"><?= $t->persentase ?>%</td>
                             <td class="text-center"><?= $t->status === '0'  ? 'Proyek Berjalan' : 'Proyek Selesai' ?></td>
                             <td class="text-center"><?= number_format($t->harga, 0, ',', '.') ?></td>
+                            <td class="text-center"><?= number_format($t->realisasi, 0, ',', '.') ?></td>
                           </tr>
                         <?php endif; ?>
                       <?php
@@ -206,6 +212,7 @@ $this->load->view('_partials/header');
                         $sumPersentase += $t->persentase;
                         $arrper[$t->konsumen][$t->idproyek] = $sumPersentase / $banyakJNPro;
                         $sumHarga += $t->harga;
+                        $sumRealisasi += $t->realisasi;
                         $fixpersen = 0;
                         foreach ($arrper[$t->konsumen] as $v) {
                           $fixpersen += $v;
@@ -215,9 +222,10 @@ $this->load->view('_partials/header');
                       <?php if ($count !== 0) : ?>
                         <tr>
                           <th colspan="<?= $this->session->userdata('hakakses') !== '2' ? 5 : 4 ?>" class="text-center">Total Persentase Proyek</th>
-                          <th class="text-center" style="background-color: #8EAADB; color:black"><?= $fixpersen ?>%</th>
+                          <th class="text-center" style="background-color: #8EAADB; color:black"><?= round($fixpersen, 2) ?>%</th>
                           <th class="text-center">Total Harga</th>
                           <th class="text-center" style="background-color: #FFC000; color:black"><?= number_format($sumHarga, '0', ',', '.') ?></th>
+                          <th class="text-center" style="background-color: #23D200; color:black"><?= number_format($sumRealisasi, '0', ',', '.') ?></th>
                         </tr>
                       <?php endif; ?>
                     </tbody>

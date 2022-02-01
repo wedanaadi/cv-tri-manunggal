@@ -1,5 +1,5 @@
 <div class="table-responsive">
-  <table class="table table-bordered" style="white-space: nowrap;">
+  <table class="table table-bordered" id="tabel" style="white-space: nowrap;">
     <thead>
       <tr>
         <th>#</th>
@@ -17,30 +17,44 @@
     </thead>
     <tbody>
       <?php $no = 1;
-      foreach ($kegiatan as $k) : ?>
+      foreach ($edit as $k) : ?>
         <tr>
           <td><?= $no; ?></td>
           <td style="width:400px">
-            <?= $k->kegiatan ?>
+            <?= $k->nama_kegiatan ?>
             <input type="hidden" name="kegiatanid[]" id="kegiatan" value="<?= $k->kegiatan_id ?>">
-            <input type="hidden" name="jenisproyek[]" id="jenisproyek" value="<?= $k->jenis_proyek ?>">
+            <input type="hidden" name="jenisproyek[]" id="jenisproyek" value="<?= $k->jenis_proyek_id ?>">
           </td>
-          <td><select style="width:200px" name="pegawai[]" class="form-control pegawai" id="pegawai"></select></td>
           <td>
-            <span id="<?= 'durasi' . $k->jenis_proyek . $no ?>">1 Hari</span>
-            <input type="hidden" name="durasi[]" value="1" id="<?= 'durasiForm' . $k->jenis_proyek . $no ?>">
+            <select style="width:200px" name="pegawai[]" class="form-control pegawai" id="pegawai">
+              <?php
+              foreach ($pegawai as $p) :
+                if ($k->pegawai_id === $p->id_pegawai) :
+              ?>
+                  <option value="<?= $p->id_pegawai ?>" selected><?= $p->nama_pegawai ?></option>
+                <?php else : ?>
+                  <option value="<?= $p->id_pegawai ?>"><?= $p->nama_pegawai ?></option>
+              <?php
+                endif;
+              endforeach;
+              ?>
+            </select>
           </td>
-          <td><input style="width:110px" type="text" class="form-control waktu mulai" name="mulai_pegawai[]" id-no="<?= $k->jenis_proyek . $no ?>" id="<?= 'mulai' . $k->jenis_proyek . $no ?>"></td>
-          <td><input style="width:110px" type="text" class="form-control waktu selesai" name="selesai_pegawai[]" id-no="<?= $k->jenis_proyek . $no ?>" id="<?= 'selesai' . $k->jenis_proyek . $no ?>"></td>
+          <td>
+            <span id="<?= 'durasi' . $k->jenis_proyek_id . $no ?>"><?= $k->durasi ?> Hari</span>
+            <input type="hidden" name="durasi[]" value="<?= $k->durasi ?>" id="<?= 'durasiForm' . $k->jenis_proyek_id . $no ?>">
+          </td>
+          <td><input style="width:110px" type="text" class="form-control waktu mulai" name="mulai_pegawai[]" id-no="<?= $k->jenis_proyek_id . $no ?>" id="<?= 'mulai' . $k->jenis_proyek_id . $no ?>" value="<?= $k->startDate ?>"></td>
+          <td><input style="width:110px" type="text" class="form-control waktu selesai" name="selesai_pegawai[]" id-no="<?= $k->jenis_proyek_id . $no ?>" id="<?= 'selesai' . $k->jenis_proyek_id . $no ?>" value="<?= $k->endDate ?>"></td>
           <td><?= $k->unit ?><input type="hidden" name="unit[]" value="<?= $k->unit ?>"></td>
-          <td><input style="width:80px" type="text" name="vol[]" class="form-control vol" value="<?= $k->volJadwal ?>" jum-attrs="<?= $k->harga ?>" id-no="<?= $no ?>" id="vol"></td>
+          <td><input style="width:80px" type="text" name="vol[]" class="form-control vol" value="<?= $k->vol ?>" jum-attrs="<?= $k->harga ?>" id-no="<?= $no ?>" id="vol"></td>
           <td>
             <?= number_format($k->harga, 0, ",", ".") ?>
             <input type="hidden" name="harga[]" id="harga" value="<?= $k->harga ?>">
           </td>
           <td>
-            <span id="<?= 'harga' . $no ?>"><?= number_format(floor($k->hargaJadwal), 0, ",", ".") ?></span>
-            <input type="hidden" name="total[]" value="<?= floor($k->hargaJadwal) ?>" id="<?= 'totalForm' . $no ?>">
+            <span id="<?= 'harga' . $no ?>"><?= number_format(floor($k->total), 0, ",", ".") ?></span>
+            <input type="hidden" name="total[]" value="<?= floor($k->total) ?>" id="<?= 'totalForm' . $no ?>">
           </td>
         </tr>
       <?php $no++;
@@ -91,22 +105,5 @@
     }
   })
 
-  $('.pegawai').select2({
-    placeholder: "Pilih Pegawai",
-    ajax: {
-      url: "<?= base_url(); ?>Pegawai_c/select2",
-      dataType: 'json',
-      data: function(params) {
-        return {
-          q: $.trim(params.term)
-        };
-      },
-      processResults: function(data) {
-        return {
-          results: data
-        };
-      },
-      cache: true
-    }
-  });
+  $('.pegawai').select2();
 </script>
