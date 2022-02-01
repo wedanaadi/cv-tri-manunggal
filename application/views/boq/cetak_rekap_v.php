@@ -59,10 +59,10 @@
         <td style="border: 1px solid; text-align:center;"><?= $v->satuan ?></td>
         <td style="border: 1px solid; text-align:center;"><?= $v->volume ?></td>
         <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->total_harga_satuan), 0, ',', '.') ?></td>
-        <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->total), 0, ',', '.') ?></td>
+        <td style="border: 1px solid; text-align:right;"><?= number_format($v->volume * bulatkan($v->total_harga_satuan), 0, ',', '.') ?></td>
       </tr>
     <?php $no++;
-      $total += (float)$v->total;
+      $total += (float)($v->volume * bulatkan($v->total_harga_satuan));
     endforeach; ?>
     <tr>
       <td colspan="5" style="text-align: center; border: 1px solid;"><strong>TOTAL</strong></td>
@@ -75,7 +75,7 @@
     <tr>
       <td style="border-left: 1px solid; border-bottom: 1px solid;" colspan="1"></td>
       <!-- <td style="border-left: 1px solid; border-bottom: 1px solid;" colspan="1"><strong>Terbilang : </strong></td> -->
-      <td style="border-right: 1px solid; border-bottom: 1px solid;" colspan="5"><strong>Terbilang : # <?= terbilang(bulatkan($total)) ?> Rupiah#</strong></td>
+      <td style="border-right: 1px solid; border-bottom: 1px solid;" colspan="5"><strong>Terbilang : # <?= terbilang(bulatkan($total)) ?> Rupiah #</strong></td>
     </tr>
   </tbody>
 </table>

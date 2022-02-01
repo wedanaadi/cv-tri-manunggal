@@ -61,9 +61,9 @@
         <td style="border-left: 1px solid; border-right: 1px solid;"><?= $v->vol ?></td>
         <td style="border-left: 1px solid; border-right: 1px solid; text-align:right;"><?= number_format($v->harga, 0, ',', '.') ?></td>
         <td style="border-left: 1px solid; border-right: 1px solid; text-align:right;"><?= number_format($v->jumlah, 0, ',', '.') ?></td>
-        <td style="border-left: 1px solid; border-right: 1px solid; text-align:right;"><?= number_format($v->realisasi, 0, ',', '.') ?></td>
+        <td style="border-left: 1px solid; border-right: 1px solid; text-align:right;"><?= number_format($v->realisasi / $lap['atas']->volume, 0, ',', '.') ?></td>
       </tr>
-    <?php $realisasi += $v->realisasi;
+    <?php $realisasi += $v->realisasi / $lap['atas']->volume;
     endforeach; ?>
     <tr>
       <td colspan="4" style="border: 1px solid"><strong>JUMLAH</strong></td>

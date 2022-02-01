@@ -122,7 +122,7 @@ class Progress_m extends CI_Model
     ) AS persentase,
     startDate,endDate,durasi,
     (
-      SELECT IFNULL(SUM(harga_pengeluaran),0)
+      SELECT IFNULL(SUM(total_pengeluaran),0)
       FROM t_pengeluaran_progress
       INNER JOIN `t_progress_proyek` ON `t_progress_proyek`.`id_progress` = `t_pengeluaran_progress`.`progress_id`
       WHERE `t_pengeluaran_progress`.`kegiatan_id` = `jpd`.kegiatan_id
@@ -167,7 +167,7 @@ class Progress_m extends CI_Model
     ) AS persentase,
     startDate,endDate,durasi,
     (
-      SELECT IFNULL(SUM(harga_pengeluaran),0)
+      SELECT IFNULL(SUM(total_pengeluaran),0)
       FROM t_pengeluaran_progress
       INNER JOIN `t_progress_proyek` ON `t_progress_proyek`.`id_progress` = `t_pengeluaran_progress`.`progress_id`
       WHERE `t_pengeluaran_progress`.`kegiatan_id` = `jpd`.kegiatan_id
@@ -212,7 +212,7 @@ class Progress_m extends CI_Model
     $this->datatables->select("id_progress,proyek_id,jenis_proyek,kegiatan_id,tanggal,ket,persentase,status,
                                 validasi_ket,validasi,progress,
                                 (
-                                  SELECT IFNULL(SUM(`harga_pengeluaran`),0) 
+                                  SELECT IFNULL(SUM(`total_pengeluaran`),0) 
                                   FROM `t_pengeluaran_progress` 
                                   WHERE `progress_id` = pp.`id_progress`
                                 ) AS 'pengeluaran'");
@@ -246,7 +246,7 @@ class Progress_m extends CI_Model
     $this->datatables->select("id_progress,proyek_id,jenis_proyek,kegiatan_id,tanggal,ket,persentase,status,
                                 validasi_ket,validasi,progress,
                                 (
-                                  SELECT IFNULL(SUM(`harga_pengeluaran`),0) 
+                                  SELECT IFNULL(SUM(`total_pengeluaran`),0) 
                                   FROM `t_pengeluaran_progress` 
                                   WHERE `progress_id` = pp.`id_progress`
                                 ) AS 'pengeluaran'");

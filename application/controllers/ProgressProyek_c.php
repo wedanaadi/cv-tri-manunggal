@@ -90,7 +90,7 @@ class ProgressProyek_c extends CI_Controller
         $validasiProyeksql = $this->db->query("SELECT * FROM t_progress_proyek WHERE proyek_id='$order->order_proyek_id' AND jenis_proyek='$order->jenis_proyek' AND status='1' AND validasi='1'");
         $checkProses = $executeSql->num_rows();
         $boq = $this->db->query("SELECT * FROM t_boq WHERE nama_kegiatan='$order->order_proyek_id' AND jenis_proyek='$order->jenis_proyek' AND is_aktif='1'")->row();
-        $realisasi = $this->db->query("SELECT IFNULL(SUM(harga_pengeluaran),0) AS 'pengeluaran' 
+        $realisasi = $this->db->query("SELECT IFNULL(SUM(total_pengeluaran),0) AS 'pengeluaran' 
                                         FROM t_pengeluaran_progress 
                                         INNER JOIN `t_progress_proyek` ON `t_progress_proyek`.`id_progress` = `t_pengeluaran_progress`.`progress_id`
                                         WHERE `t_pengeluaran_progress`.`proyek_id`='$order->order_proyek_id' 
@@ -137,7 +137,7 @@ class ProgressProyek_c extends CI_Controller
       0 AS 'validasi', 0 as progress, opd.`jenis_proyek`, 0 AS 'status', opd.`vol`,
       (SELECT total FROM `t_boq` WHERE `nama_kegiatan`=op.`id_proyek` AND `jenis_proyek`=opd.`jenis_proyek`) AS 'boq',
       (
-        SELECT IFNULL(SUM(`harga_pengeluaran`),0) FROM `t_pengeluaran_progress`
+        SELECT IFNULL(SUM(`total_pengeluaran`),0) FROM `t_pengeluaran_progress`
         INNER JOIN `t_progress_proyek` ON `t_progress_proyek`.`id_progress` = `t_pengeluaran_progress`.`progress_id`
         WHERE `t_pengeluaran_progress`.`proyek_id` = op.`id_proyek`
         AND `t_pengeluaran_progress`.`jenis_proyek_id` = opd.`jenis_proyek`
@@ -188,7 +188,7 @@ class ProgressProyek_c extends CI_Controller
         $validasiProyeksql = $this->db->query("SELECT * FROM t_progress_proyek WHERE proyek_id='$order->order_proyek_id' AND jenis_proyek='$order->jenis_proyek' AND status='1' AND validasi='1'");
         $checkProses = $executeSql->num_rows();
         $boq = $this->db->query("SELECT * FROM t_boq WHERE nama_kegiatan='$order->order_proyek_id' AND jenis_proyek='$order->jenis_proyek' AND is_aktif='1'")->row();
-        $realisasi = $this->db->query("SELECT IFNULL(SUM(harga_pengeluaran),0) AS 'pengeluaran' 
+        $realisasi = $this->db->query("SELECT IFNULL(SUM(total_pengeluaran),0) AS 'pengeluaran' 
                                         FROM t_pengeluaran_progress 
                                         INNER JOIN `t_progress_proyek` ON `t_progress_proyek`.`id_progress` = `t_pengeluaran_progress`.`progress_id`
                                         WHERE `t_pengeluaran_progress`.`proyek_id`='$order->order_proyek_id' 
@@ -237,7 +237,7 @@ class ProgressProyek_c extends CI_Controller
       0 AS 'validasi', 0 as progress, opd.`jenis_proyek`, 0 AS 'status', opd.`vol`,
       (SELECT total FROM `t_boq` WHERE `nama_kegiatan`=op.`id_proyek` AND `jenis_proyek`=opd.`jenis_proyek`) AS 'boq',
       (
-        SELECT IFNULL(SUM(`harga_pengeluaran`),0) FROM `t_pengeluaran_progress`
+        SELECT IFNULL(SUM(`total_pengeluaran`),0) FROM `t_pengeluaran_progress`
         INNER JOIN `t_progress_proyek` ON `t_progress_proyek`.`id_progress` = `t_pengeluaran_progress`.`progress_id`
         WHERE `t_pengeluaran_progress`.`proyek_id` = op.`id_proyek`
         AND `t_pengeluaran_progress`.`jenis_proyek_id` = opd.`jenis_proyek`
@@ -268,7 +268,8 @@ class ProgressProyek_c extends CI_Controller
                                                   ) AS 'kegiatan'
                                                   FROM `t_progress_proyek` prop
                                                   WHERE prop.`proyek_id` = '$proyek'
-                                                  AND prop.`jenis_proyek` = '$jenis'")->row();
+                                                  AND prop.`jenis_proyek` = '$jenis'
+                                                  AND prop.`validasi` = '1'")->row();
     if ($sqlPersentaseJenisProyek->kegiatan !== "0") {
       $hitung = $sqlPersentaseJenisProyek->persentase / $sqlPersentaseJenisProyek->kegiatan;
     } else {
@@ -398,6 +399,13 @@ class ProgressProyek_c extends CI_Controller
     $data['loadphoto'] = json_encode([]);
     $data['title'] = 'Progress Proyek Detail';
     $data['data'] = $this->db->query($sqldata)->row();
+    $sqlBUAPengeluaran = "SELECT kd.`id`,up.`nama_barang_upah`, kd.`koef`,kd.`satuan`, kd.`harga_upah_bahan_alat`, kd.`harga`
+                          FROM m_data_kegiatan k
+                          INNER JOIN `m_kegiatan_detail` kd ON kd.`kegiatan_id` = k.`id_master_kegiatan`
+                          INNER JOIN `m_upah_barang` up ON up.`id_barang` = kd.`upah_bahan_alat`
+                          WHERE k.`id_master_kegiatan` = '$kegiatan'
+                          ORDER BY kd.`id`";
+    $data['BUA'] = $this->db->query($sqlBUAPengeluaran)->result();
     $lastpersentase = $this->db->query("SELECT IFNULL(SUM(persentase),0) AS 'persentase' FROM `t_progress_proyek` 
                                         WHERE `proyek_id` = '$proyek' 
                                         AND `jenis_proyek` = '$jenis' 
@@ -454,6 +462,42 @@ class ProgressProyek_c extends CI_Controller
     $data['loadphoto'] = json_encode($this->db->query("SELECT * FROM t_progress_gambar WHERE progress_id = '$idprogress'")->result());
     $data['title'] = 'Progress Proyek Detail';
     $data['data'] = $this->db->query($sqldata)->row();
+    $kegiatan = $data['data']->kegiatan_id;
+    $sqlBUAPengeluaran = "SELECT kd.`id`,up.`nama_barang_upah`, kd.`koef`,kd.`satuan`, kd.`harga_upah_bahan_alat`, kd.`harga`
+                          FROM m_data_kegiatan k
+                          INNER JOIN `m_kegiatan_detail` kd ON kd.`kegiatan_id` = k.`id_master_kegiatan`
+                          INNER JOIN `m_upah_barang` up ON up.`id_barang` = kd.`upah_bahan_alat`
+                          WHERE k.`id_master_kegiatan` = '$kegiatan'
+                          ORDER BY kd.`id`";
+    $bua = $this->db->query($sqlBUAPengeluaran)->result();
+    $totalPengeluanTable = 0;
+    foreach ($bua as $v) {
+      $findPengeluaran = $this->db->query("SELECT * FROM t_pengeluaran_progress WHERE progress_id = '$idprogress' AND nama_pengeluaran='$v->id'");
+      if ($findPengeluaran->num_rows() > 0) {
+        $array[] = (object)[
+          'id' => $v->id,
+          'nama_barang_upah' => $v->nama_barang_upah,
+          'koef' => $v->koef,
+          'satuan' => $v->satuan,
+          'vol' => $findPengeluaran->row()->vol,
+          'harga' => $findPengeluaran->row()->harga_pengeluaran,
+          'total' => $findPengeluaran->row()->total_pengeluaran,
+        ];
+        $totalPengeluanTable += $findPengeluaran->row()->total_pengeluaran;
+      } else {
+        $array[] = (object)[
+          'id' => $v->id,
+          'nama_barang_upah' => $v->nama_barang_upah,
+          'koef' => $v->koef,
+          'satuan' => $v->satuan,
+          'vol' => 0,
+          'harga' => $v->harga,
+          'total' => 0,
+        ];
+      }
+    }
+    $data['TPT'] = $totalPengeluanTable;
+    $data['BUA'] = $array;
     $data['boq'] = $this->db->query("SELECT * FROM t_boq WHERE jenis_proyek='$progressFind->jenis_proyek' AND nama_kegiatan='$progressFind->proyek_id' AND is_aktif='1'")->row();
     // $proyekid = $data['data']->proyek_id;
     // $jnid = $data['data']->id_jenis_proyek;
@@ -513,6 +557,25 @@ class ProgressProyek_c extends CI_Controller
 
   public function create()
   {
+    $pb = json_decode($this->input->post('idbarang'));
+    $pk = json_decode($this->input->post('koef'));
+    $pv = json_decode($this->input->post('vol'));
+    $ps = json_decode($this->input->post('sat'));
+    $ph = json_decode($this->input->post('hs'));
+    $pt = json_decode($this->input->post('total'));
+    for ($i = 0; $i < count($pb); $i++) {
+      $dummy[] = [
+        'nama_pengeluaran' => $pb[$i],
+        'koef' => $pk[$i],
+        'vol' => $pv[$i],
+        'sat' => $ps[$i],
+        'harga_pengeluaran' => $ph[$i],
+        'total' => $pt[$i],
+      ];
+    }
+    $dataPengeluaran = array_filter($dummy, function ($var) {
+      return ($var['vol'] > 0);
+    });
     $kepalaproyek = $this->session->userdata('kodeuser');
     $sqlPersentase = "SELECT IFNULL(SUM(persentase),0) AS 'persentase' FROM `t_progress_proyek`
                       WHERE `kegiatan_id` = '" . $this->input->post('kegiatanid') . "'
@@ -533,17 +596,21 @@ class ProgressProyek_c extends CI_Controller
       'validasi_ket' => '-',
       'progress' => $this->input->post('progresscount'),
     ];
-    $datapengeluaran = json_decode($this->input->post('pengeluaran'));
-    if (count($datapengeluaran) > 0) {
-      for ($i = 0; $i < count($datapengeluaran); $i++) {
+    if (count($dataPengeluaran) > 0) {
+      for ($i = 0; $i < count($dataPengeluaran); $i++) {
+        $p = array_values($dataPengeluaran);
         $pengeluaran[] = [
           'id_pengeluaran' => uniqid(),
           'progress_id' => $data['id_progress'],
           'proyek_id' => $this->input->post('proyekid'),
           'jenis_proyek_id' => $this->input->post('jenisid'),
           'kegiatan_id' => $this->input->post('kegiatanid'),
-          'nama_pengeluaran' => $datapengeluaran[$i][0],
-          'harga_pengeluaran' => $datapengeluaran[$i][1],
+          'nama_pengeluaran' => $p[$i]['nama_pengeluaran'],
+          'koef' => $p[$i]['koef'],
+          'vol' => $p[$i]['vol'],
+          'sat' => $p[$i]['sat'],
+          'harga_pengeluaran' => $p[$i]['harga_pengeluaran'],
+          'total_pengeluaran' => $p[$i]['total'],
         ];
       }
     }
@@ -582,7 +649,7 @@ class ProgressProyek_c extends CI_Controller
     }
     $this->db->trans_start();
     $this->db->insert('t_progress_proyek', $data);
-    if (count($datapengeluaran) > 0) {
+    if (count($dataPengeluaran) > 0) {
       $this->db->insert_batch('t_pengeluaran_progress', $pengeluaran);
     }
     if (count($dataPhoto) > 0) {
@@ -607,6 +674,25 @@ class ProgressProyek_c extends CI_Controller
 
   public function updateproses($id)
   {
+    $pb = json_decode($this->input->post('idbarang'));
+    $pk = json_decode($this->input->post('koef'));
+    $pv = json_decode($this->input->post('vol'));
+    $ps = json_decode($this->input->post('sat'));
+    $ph = json_decode($this->input->post('hs'));
+    $pt = json_decode($this->input->post('total'));
+    for ($i = 0; $i < count($pb); $i++) {
+      $dummy[] = [
+        'nama_pengeluaran' => $pb[$i],
+        'koef' => $pk[$i],
+        'vol' => $pv[$i],
+        'sat' => $ps[$i],
+        'harga_pengeluaran' => $ph[$i],
+        'total' => $pt[$i],
+      ];
+    }
+    $dataPengeluaran = array_filter($dummy, function ($var) {
+      return ($var['vol'] > 0);
+    });
     $kepalaproyek = $this->session->userdata('kodeuser');
     $data = [
       'id_progress' => $id,
@@ -622,17 +708,35 @@ class ProgressProyek_c extends CI_Controller
       'validasi' => 0,
       // 'progress' => $this->input->post('progresscount'),
     ];
-    $datapengeluaran = json_decode($this->input->post('pengeluaran'));
-    if (count($datapengeluaran) > 0) {
-      for ($i = 0; $i < count($datapengeluaran); $i++) {
+    // $datapengeluaran = json_decode($this->input->post('pengeluaran'));
+    // if (count($datapengeluaran) > 0) {
+    //   for ($i = 0; $i < count($datapengeluaran); $i++) {
+    //     $pengeluaran[] = [
+    //       'id_pengeluaran' => uniqid(),
+    //       'progress_id' => $data['id_progress'],
+    //       'proyek_id' => $this->input->post('proyekid'),
+    //       'jenis_proyek_id' => $this->input->post('jenisid'),
+    //       'kegiatan_id' => $this->input->post('kegiatanid'),
+    //       'nama_pengeluaran' => $datapengeluaran[$i][0],
+    //       'harga_pengeluaran' => $datapengeluaran[$i][1],
+    //     ];
+    //   }
+    // }
+    if (count($dataPengeluaran) > 0) {
+      for ($i = 0; $i < count($dataPengeluaran); $i++) {
+        $p = array_values($dataPengeluaran);
         $pengeluaran[] = [
           'id_pengeluaran' => uniqid(),
           'progress_id' => $data['id_progress'],
           'proyek_id' => $this->input->post('proyekid'),
           'jenis_proyek_id' => $this->input->post('jenisid'),
           'kegiatan_id' => $this->input->post('kegiatanid'),
-          'nama_pengeluaran' => $datapengeluaran[$i][0],
-          'harga_pengeluaran' => $datapengeluaran[$i][1],
+          'nama_pengeluaran' => $p[$i]['nama_pengeluaran'],
+          'koef' => $p[$i]['koef'],
+          'vol' => $p[$i]['vol'],
+          'sat' => $p[$i]['sat'],
+          'harga_pengeluaran' => $p[$i]['harga_pengeluaran'],
+          'total_pengeluaran' => $p[$i]['total'],
         ];
       }
     }
@@ -677,7 +781,7 @@ class ProgressProyek_c extends CI_Controller
     $this->db->where('id_proyek', $this->input->post('proyekid'));
     $this->db->update('t_order_proyek', ['status' => 0]);
 
-    if (count($datapengeluaran) > 0) {
+    if (count($dataPengeluaran) > 0) {
       $this->db->where('progress_id', $id);
       $this->db->delete('t_pengeluaran_progress');
 
@@ -820,7 +924,7 @@ class ProgressProyek_c extends CI_Controller
               AND jprd.`kegiatan_id` = ppr.`kegiatan_id`
             ) AS 'unitjadwal',
             (
-              SELECT IFNULL(SUM(`harga_pengeluaran`),0) 
+              SELECT IFNULL(SUM(`total_pengeluaran`),0) 
               FROM `t_pengeluaran_progress` pepro
               WHERE pepro.`progress_id` = ppr.`id_progress`
             ) AS 'pengeluaran',

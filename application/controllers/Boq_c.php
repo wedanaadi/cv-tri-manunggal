@@ -185,7 +185,7 @@ class Boq_c extends CI_Controller
     $data['atas'] = $this->db->query($sql)->row();
     $sqlkegiatan = "SELECT k.`nama_kegiatan`,jnd.*,
                     (
-                      SELECT IFNULL(SUM(`harga_pengeluaran`),0) FROM `t_pengeluaran_progress` tpp
+                      SELECT IFNULL(SUM(tpp.`total_pengeluaran`),0) FROM `t_pengeluaran_progress` tpp
                       INNER JOIN `t_progress_proyek` prp ON prp.`id_progress` = tpp.`progress_id`
                       WHERE tpp.`proyek_id` = b.`nama_kegiatan`
                       AND tpp.`jenis_proyek_id` = b.`jenis_proyek`
@@ -213,7 +213,7 @@ class Boq_c extends CI_Controller
   {
     $sql = "SELECT op.`nama_kegiatan` as kegiatan, op.`nama_proyek_pekerjaan` as pekerjaan, jn.`nama_jenis_proyek`, op.`tahun_anggaran`, op.`lokasi`, b.*, 
             (
-              SELECT IFNULL(SUM(`harga_pengeluaran`),0) FROM `t_pengeluaran_progress` tpp
+              SELECT IFNULL(SUM(`total_pengeluaran`),0) FROM `t_pengeluaran_progress` tpp
               INNER JOIN `t_progress_proyek` prp ON prp.`id_progress` = tpp.`progress_id`
               WHERE tpp.`proyek_id` = b.`nama_kegiatan`
               AND tpp.`jenis_proyek_id` = b.`jenis_proyek`

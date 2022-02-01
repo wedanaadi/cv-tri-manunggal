@@ -46,8 +46,8 @@
       <th style="border: 1px solid">Satuan</th>
       <th style="border: 1px solid">Volume</th>
       <th style="border: 1px solid">Harga Satuan BOQ (Rp)</th>
-      <th style="border: 1px solid">Harga Satuan Realisasi (Rp)</th>
       <th style="border: 1px solid">Jumlah BOQ (Rp)</th>
+      <th style="border: 1px solid">Harga Satuan Realisasi (Rp)</th>
       <th style="border: 1px solid">Jumlah Realisasi (Rp)</th>
     </tr>
   </thead>
@@ -62,13 +62,13 @@
         <td style="border: 1px solid; text-align:center;"><?= $v->satuan ?></td>
         <td style="border: 1px solid; text-align:center;"><?= $v->volume ?></td>
         <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->total_harga_satuan), 0, ',', '.') ?></td>
-        <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->realisasi), 0, ',', '.') ?></td>
-        <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->total), 0, ',', '.') ?></td>
-        <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->volume * $v->realisasi), 0, ',', '.') ?></td>
+        <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->volume * bulatkan($v->total_harga_satuan)), 0, ',', '.') ?></td>
+        <td style="border: 1px solid; text-align:right;"><?= number_format(bulatkan($v->realisasi) / $v->volume, 0, ',', '.') ?></td>
+        <td style="border: 1px solid; text-align:right;"><?= number_format($v->volume * (bulatkan($v->realisasi) / $v->volume), 0, ',', '.') ?></td>
       </tr>
     <?php $no++;
-      $total += (float)$v->total;
-      $realisasi += $v->volume * (float)$v->realisasi;
+      $total += $v->volume * (float)$v->total_harga_satuan;
+      $realisasi += $v->volume * (float)$v->realisasi / $v->volume;
     endforeach; ?>
     <tr>
       <td colspan="6" style="text-align: center; border: 1px solid;"><strong>TOTAL</strong></td>

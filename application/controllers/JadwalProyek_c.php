@@ -226,7 +226,7 @@ class JadwalProyek_c extends CI_Controller
     $sql = "SELECT `nama_jenis_proyek`,
             (
               SELECT COUNT(`id_detail`) FROM `t_jadwal_proyek_detail` pd
-              WHERE pd.`jadwal_id` = '61e8c4a755479' AND pd.`jenis_proyek_id` = tpd.`jenis_proyek_id`
+              WHERE pd.`jadwal_id` = '$id' AND pd.`jenis_proyek_id` = tpd.`jenis_proyek_id`
               GROUP BY pd.`jenis_proyek_id`
             ) AS 'rowspan',
             k.`nama_kegiatan`, p.`nama_pegawai`, tpd.*, TRIM(`tpd`.`vol`)+0 AS 'voltrim'

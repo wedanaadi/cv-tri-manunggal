@@ -258,7 +258,7 @@ class Dashboard_c extends CI_Controller
   {
     if ($this->session->userdata('hakakses') === '2') {
       $kepalaproyek = $this->session->userdata('kodeuser');
-      $where = "WHERE pp.`validasi` IN('1','2') AND op.`status` = '0' AND opd.`kepala_proyek` = '$kepalaproyek'";
+      $where = "WHERE pp.`validasi` IN('1','2') AND op.`status` = '0' AND pp.`kepala_proyek` = '$kepalaproyek'";
     } else {
       $where = "WHERE pp.`validasi` = '0'";
     }
