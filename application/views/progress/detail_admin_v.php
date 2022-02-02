@@ -90,7 +90,7 @@ $this->load->view('_partials/header');
                     <td><?= $a->vol ?></td>
                     <td>
                       <?= $a->status === 1 ? '<span class="badge badge-success">Proyek Selesai</span>' : '<span class="badge badge-info">Proyek Berjalan</span>' ?>
-                      <?= $a->validasi === 1 ? '<i class="far fa-check-circle fa-lg"></i>' : '' ?>
+                      <?= $a->status === 1 ? '<i class="far fa-check-circle fa-lg"></i>' : '' ?>
                     </td>
                     <td><?= number_format(bulatkan($a->boq), 0, ',', '.') ?></td>
                     <td><?= number_format($a->realisasi, 0, ',', '.') ?></td>

@@ -36,9 +36,11 @@ class Progress_m extends CI_Model
     $this->datatables->from($this->orderp);
     $this->datatables->join('t_order_proyek_detail opd', 'opd.order_proyek_id=' . $this->orderp . '.id_proyek');
     $this->datatables->join('t_jadwal_proyek jdp', 'jdp.proyek_id=' . $this->orderp . '.id_proyek');
-    $this->datatables->group_by($this->orderp . '.id_proyek');
+    $this->datatables->join('t_boq boq', 'boq.nama_kegiatan=' . $this->orderp . '.id_proyek');
     $this->datatables->where($this->orderp . '.is_aktif', 1);
     $this->datatables->where('jdp.is_aktif', 1);
+    $this->datatables->where('boq.is_aktif', 1);
+    $this->datatables->group_by($this->orderp . '.id_proyek');
     $this->datatables->add_column(
       'view',
       '<a href="' . base_url() . 'ProgressProyek_c/detailforadmin/$1" class="btn btn-icon icon-left btn-success" id-pk="$1" id="k_u">
@@ -112,7 +114,7 @@ class Progress_m extends CI_Model
 
   function jenisproyek_kegiatan_ignited($p, $j)
   {
-    $this->datatables->select("id_detail,jadwal_id,proyek_id,jenis_proyek_id,kegiatan_id, k.nama_kegiatan,(
+    $this->datatables->select("id_detail,jadwal_id,jenis_proyek_id,kegiatan_id, k.nama_kegiatan,(
       SELECT IFNULL(SUM(`persentase`),0) 
       FROM `t_progress_proyek` 
       WHERE `proyek_id`=`jpd`.`proyek_id` 
@@ -129,9 +131,10 @@ class Progress_m extends CI_Model
       AND `t_pengeluaran_progress`.`proyek_id` = `jpd`.proyek_id
       AND `t_pengeluaran_progress`.`jenis_proyek_id` = `jpd`.jenis_proyek_id
       AND `t_progress_proyek`.`validasi` = '1'
-    ) AS realisasi");
+    ) AS realisasi, jpd.proyek_id");
     $this->datatables->from('t_jadwal_proyek_detail jpd');
     $this->datatables->join('m_data_kegiatan k', 'k.id_master_kegiatan=jpd.kegiatan_id');
+    $this->datatables->join('t_jadwal_proyek jp', 'jp.id_jadwal=jpd.jadwal_id');
     $this->datatables->where('jpd.proyek_id', $p);
     $this->datatables->where('jpd.jenis_proyek_id', $j);
     $this->datatables->add_column(
@@ -157,7 +160,7 @@ class Progress_m extends CI_Model
 
   function jenisproyek_kegiatan_ignited_admin($p, $j)
   {
-    $this->datatables->select("id_detail,jadwal_id,proyek_id,jenis_proyek_id,kegiatan_id, k.nama_kegiatan,(
+    $this->datatables->select("id_detail,jadwal_id,jpd.proyek_id,jenis_proyek_id,kegiatan_id, k.nama_kegiatan,(
       SELECT IFNULL(SUM(`persentase`),0) 
       FROM `t_progress_proyek` 
       WHERE `proyek_id`=`jpd`.`proyek_id` 
@@ -184,6 +187,7 @@ class Progress_m extends CI_Model
     ) AS countprogress");
     $this->datatables->from('t_jadwal_proyek_detail jpd');
     $this->datatables->join('m_data_kegiatan k', 'k.id_master_kegiatan=jpd.kegiatan_id');
+    $this->datatables->join('t_jadwal_proyek jp', 'jp.id_jadwal=jpd.jadwal_id');
     $this->datatables->where('jpd.proyek_id', $p);
     $this->datatables->where('jpd.jenis_proyek_id', $j);
     $this->datatables->add_column(

@@ -121,7 +121,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     <span style="padding: 15px">Tidak Ada Notifikasi</span>
                   <?php endif; ?>
                   <?php foreach ($this->session->userdata('notif') as $n) : ?>
-                    <a href="<?= base_url('ProgressProyek_c/formUbah/' . $n->id_progress) ?>" class="dropdown-item dropdown-item-unread">
+                    <a href="<?= base_url('ProgressProyek_c/formUbah/' . $n->id_progress . '/' . true) ?>" class="dropdown-item dropdown-item-unread">
                       <!-- <div class="dropdown-item-icon bg-success text-white">
                         <i class="fas fa-exclamation-triangle"></i>
                       </div> -->

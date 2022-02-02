@@ -181,7 +181,7 @@ class JadwalProyek_c extends CI_Controller
       'is_aktif' => 0,
     ];
     $this->db->trans_start();
-    $this->JadwalProyek_m->updateDB($data, $id);
+    $this->JadwalProyek_m->hapusDB($data, $id);
     $this->db->trans_complete();
 
     if ($this->db->trans_status() === TRUE) {
@@ -200,6 +200,7 @@ class JadwalProyek_c extends CI_Controller
           }
         }
         $this->db->query("DELETE FROM t_progress_proyek WHERE proyek_id='$proyekid'");
+        $this->db->query("DELETE FROM t_pengeluaran_progress WHERE proyek_id='$proyekid'");
       }
       echo json_encode(['status' => true]);
     }

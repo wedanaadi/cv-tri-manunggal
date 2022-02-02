@@ -244,7 +244,7 @@ $this->load->view('_partials/header');
             </div>
             <div class="form-group">
               <label>Persentase</label>
-              <input type="range" name="persentase" class="form-control-range" value="0">
+              <input type="range" name="persentase" class="form-control-range" value="0" <?= json_decode($isNotif) === '1' ? 'disabled' : '' ?>>
               <span id="rangeval">0</span>
             </div>
             <div class="form-group row" style="margin-bottom:0px">
@@ -256,7 +256,7 @@ $this->load->view('_partials/header');
               </div>
             </div>
           </div>
-          <div class="card-footer">
+          <div class="card-footer" <?= json_decode($isNotif) === '1' ? 'style="display:none"' : '' ?>>
             <div class="row">
               <div class="col text-right">
                 <a href="javascript:void(0);" onclick="goBack()" type="button" id="cancel" class="btn btn-icon icon-left btn-light">

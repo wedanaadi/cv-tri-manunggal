@@ -23,109 +23,20 @@ class Dashboard_c extends CI_Controller
     $data['title'] = 'Dashboard';
 
     if ($this->session->userdata('hakakses') !== '2') {
-      $checkProses = $this->db->query("SELECT * FROM t_progress_proyek")->num_rows();
-
-      if ($checkProses > 0) {
-        $detilorder = $this->db->query("SELECT * FROM t_order_proyek_detail opd
-                                      INNER JOIN `t_jadwal_proyek` jd ON jd.`proyek_id` = opd.`order_proyek_id`
-                                      WHERE jd.`is_aktif` = '1'")->result();
-        $berjalan = 0;
-        $selesai = 0;
-        foreach ($detilorder as $v) {
-          $progress = $this->db->query("SELECT * FROM t_progress_proyek WHERE jenis_proyek ='$v->jenis_proyek' AND proyek_id ='$v->order_proyek_id' AND status='1'");
-          if ($progress->num_rows() > 0) {
-            if ($progress->row()->status === '1') {
-              $selesai += 1;
-            } else {
-              $berjalan += 1;
-            }
-          } else {
-            $berjalan += 1;
-          }
-        }
-        $data['cB'] = $berjalan;
-        $data['cS'] = $selesai;
-      } else {
-        $data['cB'] = $this->db->query("SELECT COUNT(`jenis_proyek`) AS 'c' FROM `t_order_proyek` top
-                                        INNER JOIN `t_order_proyek_detail` topd ON topd.`order_proyek_id` = top.`id_proyek`
-                                        INNER JOIN `t_jadwal_proyek` jd ON jd.`proyek_id` = top.`id_proyek` WHERE jd.`is_aktif` = '1'")->row()->c;
-        $data['cS'] = 0;
-      }
+      $data['cB'] = $this->jenisProyekCount()['berjalan'];
+      $data['cS'] = $this->jenisProyekCount()['selesai'];
       $data['chart'] = json_encode($this->grafikbaru());
-      // $data['chart'] = json_encode($this->chart());
       $data['tabel'] = $this->tabeldetil();
-      // $data['notif'] = $this->notifvalidasi();
       $this->session->set_userdata('notif', $this->notifvalidasi());
     } else {
       $id = $this->session->userdata('kodeuser');
-      $checkProses = $this->db->query("SELECT * FROM t_progress_proyek WHERE kepala_proyek ='$id'")->num_rows();
-      if ($checkProses > 0) {
-        $detilorder = $this->db->query("SELECT * FROM t_order_proyek_detail opd
-                                      INNER JOIN `t_jadwal_proyek` jd ON jd.`proyek_id` = opd.`order_proyek_id`
-                                      WHERE kepala_proyek = '$id' AND jd.`is_aktif` = '1'")->result();
-        $berjalan = 0;
-        $selesai = 0;
-        foreach ($detilorder as $v) {
-          $progress = $this->db->query("SELECT * FROM t_progress_proyek WHERE jenis_proyek ='$v->jenis_proyek' AND proyek_id ='$v->order_proyek_id' AND status='1'");
-          if ($progress->num_rows() > 0) {
-            if ($progress->row()->status === '1') {
-              $selesai += 1;
-            } else {
-              $berjalan += 1;
-            }
-          } else {
-            $berjalan += 1;
-          }
-        }
-        $data['cB'] = $berjalan;
-        $data['cS'] = $selesai;
-      } else {
-        $data['cB'] = $this->db->query("SELECT COUNT(`jenis_proyek`) AS 'c' FROM `t_order_proyek` top
-                                        INNER JOIN `t_order_proyek_detail` topd ON topd.`order_proyek_id` = top.`id_proyek`
-                                        INNER JOIN `t_jadwal_proyek` jd ON jd.`proyek_id` = top.`id_proyek`
-                                        WHERE `kepala_proyek` = '$id' AND jd.`is_aktif` = '1'")->row()->c;
-        $data['cS'] = 0;
-      }
+      $data['cB'] = $this->jenisProyekCount($id)['berjalan'];
+      $data['cS'] = $this->jenisProyekCount($id)['selesai'];
       $data['chart'] = json_encode($this->grafikbaru($id));
-      // $data['chart'] = json_encode($this->chart($id));
       $data['tabel'] = $this->tabeldetil($id);
       $this->session->set_userdata('notif', $this->notifvalidasi());
     }
     $this->load->view('dashboard_v', $data);
-  }
-
-  public function chart($id = 'kosong')
-  {
-    $lanjut = '';
-    $lanjut2 = '';
-    if ($id !== 'kosong') {
-      $lanjut = " AND `kepala_proyek` = '$id'";
-      // $lanjut2 = " WHERE opd.`kepala_proyek` = '$id'";
-    }
-    $sql = "SELECT SUM(p) AS 'jumlah',COUNT(`jenis_proyek`) AS 'count' FROM (
-              SELECT `jenis_proyek`, `p`
-              FROM(
-                    SELECT proyek_id, MAX(persentase) AS 'p', jenis_proyek
-                    FROM `t_progress_proyek`
-                    WHERE `validasi` = '1' $lanjut
-                    GROUP BY jenis_proyek,proyek_id
-                  ) AS t
-            ) AS tabeljadi";
-    if ($this->db->query($sql)->num_rows() > 0) {
-      $datas = $this->db->query($sql)->row();
-      if ($datas->jumlah > 0) {
-        $data['chart'] = floor($datas->jumlah / $datas->count);
-        $data['proyek'] = $datas->count;
-      } else {
-        $data['chart'] = 0;
-        $data['proyek'] = 0;
-      }
-    } else {
-      $data['chart'] = 0;
-      $data['proyek'] = 0;
-    }
-
-    return $data;
   }
 
   public function tabeldetil($id = 'kosong')
@@ -165,10 +76,11 @@ class Dashboard_c extends CI_Controller
                           AND prosub.`jenis_proyek` = prop.`jenis_proyek`
                         ) AS 'p',
                         (
-                                                  SELECT COUNT(id_detail) FROM `t_jadwal_proyek_detail` jprod
-                                                  WHERE jprod.`proyek_id` = prop.`proyek_id`
-                                                  AND jprod.`jenis_proyek_id` = prop.`jenis_proyek`
-                                                ) AS 'k'
+                          SELECT COUNT(id_detail) FROM `t_jadwal_proyek_detail` jprod
+                          INNER JOIN `t_jadwal_proyek` jp ON jp.`id_jadwal` = jprod.`jadwal_id`
+                          WHERE jprod.`proyek_id` = prop.`proyek_id`
+                          AND jprod.`jenis_proyek_id` = prop.`jenis_proyek`
+                        ) AS 'k'
                         FROM `t_progress_proyek` prop
                         WHERE prop.`validasi` = '1' 
                         AND prop.`proyek_id`='$p->id_proyek' 
@@ -234,15 +146,16 @@ class Dashboard_c extends CI_Controller
         $array[$idproyek] = (object)['p' => $SUMpersentase, 'b' => $bagi];
       }
 
-
       $total = 0;
+      $angkabagi = 0;
       foreach ($array as $a) {
         if ($a->p !== 0) {
           $total += $a->p / $a->b;
         }
+        $angkabagi += $a->b;
       }
       $data['total'] = $total;
-      $data['chart'] = round($total / count($array), 2);
+      $data['chart'] = round($total / $angkabagi, 2);
       $data['proyek'] = count($array);
       $data['jn'] = count($detil);
     } else {
@@ -274,5 +187,41 @@ class Dashboard_c extends CI_Controller
             GROUP BY pp.`id_progress`
             ORDER BY pp.`id_progress` ASC, pp.`tanggal` DESC";
     return $this->db->query($sql)->result();
+  }
+
+  public function jenisProyekCount($id = 'kosong')
+  {
+    $keppro = '';
+    if ($id !== 'kosong') {
+      $keppro = " AND  topd.`kepala_proyek` = '$id'";
+    }
+
+    $sqlProyek = "SELECT top.*, topd.`jenis_proyek`,topd.`kepala_proyek` 
+                  FROM `t_order_proyek` top
+                  INNER JOIN `t_order_proyek_detail` topd ON topd.`order_proyek_id` = top.`id_proyek`
+                  INNER JOIN `t_jadwal_proyek` tjp ON tjp.`proyek_id` = top.`id_proyek`
+                  INNER JOIN `t_boq` boq ON boq.`nama_satker` = top.`konsumen_id`
+                  WHERE top.`is_aktif` = '1'
+                  AND boq.`is_aktif` = '1'
+                  AND tjp.`is_aktif` = '1'
+                  $keppro
+                  GROUP BY top.`id_proyek`,topd.`jenis_proyek`";
+    $dataProyek = $this->db->query($sqlProyek);
+    $cSelesai = 0;
+    $cBerjalan = 0;
+    if ($dataProyek->num_rows() > 0) {
+      foreach ($dataProyek->result() as $v) {
+        $sqlpersentase = "SELECT IFNULL(SUM(persentase),0) as 'totalPersentase' FROM t_progress_proyek WHERE proyek_id='$v->id_proyek' AND jenis_proyek='$v->jenis_proyek' AND validasi='1' ORDER BY `tanggal` DESC";
+        $dataprogress  = $this->db->query($sqlpersentase)->row()->totalPersentase;
+        $countkegiatan = $this->db->query("SELECT COUNT(`id_detail`) AS 'jumlahKegiatan' FROM `t_jadwal_proyek_detail` jpd
+                              INNER JOIN `t_jadwal_proyek` jp ON jp.`id_jadwal` = jpd.`jadwal_id`
+                              WHERE jpd.`proyek_id` = '$v->id_proyek'
+                              AND jpd.`jenis_proyek_id` = '$v->jenis_proyek'")->row()->jumlahKegiatan;
+        (int)$dataprogress === ((int)$countkegiatan * 100) ? $cSelesai++ : $cBerjalan++;
+      }
+    }
+    $data['berjalan'] = $cBerjalan;
+    $data['selesai'] = $cSelesai;
+    return $data;
   }
 }

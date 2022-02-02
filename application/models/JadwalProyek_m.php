@@ -55,6 +55,14 @@ class JadwalProyek_m extends CI_Model
     $this->db->trans_complete();
   }
 
+  function hapusDB($data, $id)
+  {
+    $this->db->trans_start();
+    $this->db->where('id_jadwal', $id);
+    $this->db->update($this->tabel, $data);
+    $this->db->trans_complete();
+  }
+
   function getBy($param, $id)
   {
     $this->db->select('id_jadwal,tanggal_mulai,tanggal_selesai,ket,op.nospmk,k.id_konsumen,k.nama_konsumen,proyek_id');
